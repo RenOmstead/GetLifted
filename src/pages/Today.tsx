@@ -23,6 +23,23 @@ function greeting(h: number) {
   return h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
 }
 
+const AFFIRMATIONS = [
+  'Small steps, big glow ✨',
+  'Strong looks good on you 💪',
+  'Progress, not perfection 🌸',
+  'Hydrate, stretch, shine 💧',
+  'You showed up. That’s the hardest part 💕',
+  'Be gentle with yourself, and strong anyway 🎀',
+  'Every rep counts 💗',
+]
+
+/** Same affirmation all day, a new one tomorrow. */
+function affirmation(now: number) {
+  const d = new Date(now)
+  const day = Math.floor((d.getTime() - new Date(d.getFullYear(), 0, 0).getTime()) / 86_400_000)
+  return AFFIRMATIONS[day % AFFIRMATIONS.length]
+}
+
 export default function Today() {
   const navigate = useNavigate()
   const settings = useSettings()
@@ -65,17 +82,23 @@ export default function Today() {
 
   return (
     <div className="page">
-      <div className="page-header">
-        <div className="grow">
-          <h1>
-            {greeting(new Date(now).getHours())}
-            {settings.name ? `, ${settings.name}` : ''}
-          </h1>
-          <div className="subtitle">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+      <div className="hero">
+        <Icon name="sparkle" size={56} className="sparkles" />
+        <div className="row" style={{ alignItems: 'flex-start' }}>
+          <div className="grow">
+            <div className="small text-2" style={{ fontWeight: 700 }}>
+              {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+            </div>
+            <h1>
+              {greeting(new Date(now).getHours())}
+              {settings.name ? `, ${settings.name}` : ''}
+            </h1>
+          </div>
+          <Link className="icon-btn filled" to="/settings" aria-label="Settings">
+            <Icon name="settings" />
+          </Link>
         </div>
-        <Link className="icon-btn filled" to="/settings" aria-label="Settings">
-          <Icon name="settings" />
-        </Link>
+        <p className="quote">{affirmation(now)}</p>
       </div>
 
       <ActiveWorkoutCard />
@@ -94,8 +117,8 @@ export default function Today() {
           />
         ))
       ) : (
-        <div className="card row">
-          <Icon name="calendar" className="muted" />
+        <div className="card row tint-pink">
+          <Icon name="heart" className="text-2" />
           <div className="grow small text-2">{routines.length ? 'Nothing planned today. Rest, or start something anyway.' : 'Build your first routine and plan your week.'}</div>
           <Link className="btn sm" to={routines.length ? '/train' : '/train?tab=routines'}>
             {routines.length ? 'Train' : 'Get started'}
@@ -104,7 +127,7 @@ export default function Today() {
       )}
 
       <div className="grid-2">
-        <Link to="/fasting" className="card card-link stack-sm">
+        <Link to="/fasting" className="card card-link stack-sm tint-lavender">
           <div className="card-title" style={{ margin: 0 }}>
             <Icon name="timer" size={18} /> Fasting
           </div>
@@ -124,7 +147,7 @@ export default function Today() {
           )}
         </Link>
 
-        <Link to="/nutrition" className="card card-link stack-sm" style={{ alignItems: 'center' }}>
+        <Link to="/nutrition" className="card card-link stack-sm tint-peach" style={{ alignItems: 'center' }}>
           <Ring value={totals.kcal} max={settings.calorieGoal} size={92} stroke={9}>
             <div style={{ fontWeight: 700 }}>{Math.round(totals.kcal)}</div>
             <div className="tiny muted">kcal</div>
@@ -135,7 +158,7 @@ export default function Today() {
         </Link>
       </div>
 
-      <div className="card stack-sm">
+      <div className="card stack-sm tint-sky">
         <div className="row-between">
           <div className="card-title" style={{ margin: 0 }}>
             <Icon name="droplet" size={18} /> Water
@@ -155,7 +178,7 @@ export default function Today() {
       </div>
 
       {supplements.length > 0 && (
-        <div className="card stack-sm">
+        <div className="card stack-sm tint-butter">
           <div className="row-between">
             <div className="card-title" style={{ margin: 0 }}>
               <Icon name="pill" size={18} /> Supplements
@@ -183,8 +206,8 @@ export default function Today() {
         </div>
       )}
 
-      <div className="card row">
-        <Icon name="body" className="muted" />
+      <div className="card row tint-mint">
+        <Icon name="body" className="text-2" />
         <div className="grow">
           <div style={{ fontWeight: 650 }}>{latest ? `${fmt(kgToDisplay(latest.kg, u))} ${weightUnit(u)}` : 'No weigh-ins yet'}</div>
           <div className="small muted">

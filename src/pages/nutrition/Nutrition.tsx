@@ -100,7 +100,7 @@ function MealsTab({ date }: { date: string }) {
         </div>
       </div>
 
-      <div className="card stack-sm">
+      <div className="card stack-sm tint-sky">
         <div className="row-between">
           <div className="card-title" style={{ margin: 0 }}>
             <Icon name="droplet" size={18} /> Water

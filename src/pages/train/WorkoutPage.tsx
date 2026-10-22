@@ -336,7 +336,7 @@ export default function WorkoutPage() {
       <Sheet
         open={!!summary}
         onClose={() => navigate('/train', { replace: true })}
-        title="Workout complete"
+        title="Workout complete 🎉"
       >
         {summary && (
           <div className="stack">
@@ -382,7 +382,7 @@ export default function WorkoutPage() {
                 </div>
               </div>
             ))}
-            {!summary.records.length && !summary.skillLevels.length && <p className="muted">Nice work. Consistency is what builds progress.</p>}
+            {!summary.records.length && !summary.skillLevels.length && <p className="muted">Nice work, you showed up for yourself today 💕</p>}
             <button className="btn primary lg block" onClick={() => navigate('/train', { replace: true })}>
               Done
             </button>
