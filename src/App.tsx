@@ -1,18 +1,17 @@
 import { useEffect } from 'react'
-import { HashRouter, NavLink, Route, Routes, useLocation, useParams } from 'react-router'
+import { HashRouter, Navigate, NavLink, Route, Routes, useLocation, useParams } from 'react-router'
 import { Icon, type IconName } from './components/Icon'
 import { RestTimerBar, RestTimerProvider } from './components/RestTimer'
-import { useSettings } from './db/settings'
 import Body from './pages/Body'
 import ExercisePage from './pages/ExercisePage'
-import Fasting from './pages/Fasting'
 import Nutrition from './pages/nutrition/Nutrition'
 import SupplementEditor from './pages/nutrition/SupplementEditor'
 import Settings from './pages/Settings'
 import Today from './pages/Today'
 import Library from './pages/train/Library'
 import RoutineEditor from './pages/train/RoutineEditor'
-import SkillPage from './pages/train/SkillPage'
+import Path from './pages/Path'
+import Quests from './pages/Quests'
 import Train from './pages/train/Train'
 import WorkoutPage from './pages/train/WorkoutPage'
 import FigureGallery from './pages/dev/FigureGallery'
@@ -20,8 +19,9 @@ import FigureGallery from './pages/dev/FigureGallery'
 const TABS: { to: string; label: string; icon: IconName; match: string[] }[] = [
   { to: '/', label: 'Today', icon: 'home', match: ['/', '/settings'] },
   { to: '/train', label: 'Train', icon: 'dumbbell', match: ['/train', '/library', '/exercise'] },
-  { to: '/nutrition', label: 'Nutrition', icon: 'food', match: ['/nutrition'] },
-  { to: '/fasting', label: 'Fasting', icon: 'timer', match: ['/fasting'] },
+  { to: '/path', label: 'Path', icon: 'star', match: ['/path'] },
+  { to: '/quests', label: 'Quests', icon: 'trophy', match: ['/quests'] },
+  { to: '/nutrition', label: 'Food', icon: 'food', match: ['/nutrition'] },
   { to: '/body', label: 'Body', icon: 'body', match: ['/body'] },
 ]
 
@@ -56,21 +56,15 @@ function ScrollToTop() {
   return null
 }
 
-function ThemeSync() {
-  const { theme } = useSettings()
-  useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'system') root.removeAttribute('data-theme')
-    else root.setAttribute('data-theme', theme)
-  }, [theme])
-  return null
+function SkillRedirect() {
+  const { id } = useParams()
+  return <Navigate to={`/path?skill=${id ?? ''}`} replace />
 }
 
 export default function App() {
   return (
     <HashRouter>
       <RestTimerProvider>
-        <ThemeSync />
         <ScrollToTop />
         <div className="app">
           <Routes>
@@ -78,12 +72,14 @@ export default function App() {
             <Route path="/train" element={<Train />} />
             <Route path="/train/workout/:id" element={<Keyed page={WorkoutPage} />} />
             <Route path="/train/routine/:id" element={<Keyed page={RoutineEditor} />} />
-            <Route path="/train/skill/:id" element={<SkillPage />} />
+            <Route path="/train/skill/:id" element={<SkillRedirect />} />
+            <Route path="/path" element={<Path />} />
+            <Route path="/quests" element={<Quests />} />
             <Route path="/library" element={<Library />} />
             <Route path="/exercise/:id" element={<ExercisePage />} />
             <Route path="/nutrition" element={<Nutrition />} />
             <Route path="/nutrition/supplement/:id" element={<Keyed page={SupplementEditor} />} />
-            <Route path="/fasting" element={<Fasting />} />
+            <Route path="/fasting" element={<Navigate to="/nutrition?tab=fasting" replace />} />
             <Route path="/body" element={<Body />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/dev/figures" element={<FigureGallery />} />

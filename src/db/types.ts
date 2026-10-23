@@ -205,3 +205,12 @@ export interface SkillMark {
   level: number
   achievedAt: number
 }
+
+/** A multi-day challenge you joined (see src/data/challenges.ts). */
+export interface ChallengeJoin {
+  /** Challenge id. */
+  id: string
+  /** Day 1 of the challenge, YYYY-MM-DD. */
+  startDate: string
+  joinedAt: number
+}
