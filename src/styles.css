@@ -1079,6 +1079,28 @@ a.list-item:active {
   background: #2b1d24;
 }
 
+/* Character illustrations come on their own painted background. */
+.visual.art {
+  aspect-ratio: 5 / 3;
+  background: #f3e6cc;
+}
+
+.visual-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.visual-tabs .chip {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+}
+
+.thumb.art {
+  background: #f3e6cc;
+}
+
 .visual img {
   position: absolute;
   inset: 0;
