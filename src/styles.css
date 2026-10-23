@@ -2425,3 +2425,41 @@ button.plain {
   border-bottom: 1.5px dashed var(--gold);
   border-radius: 0;
 }
+
+.btn.quick-start {
+  min-height: 60px;
+  font-size: 1.15rem;
+}
+
+.challenge-row + .challenge-row {
+  padding-top: 8px;
+  border-top: 1px dashed rgba(122, 82, 50, 0.28);
+}
+
+.workout-progress {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 6px);
+  z-index: 6;
+}
+
+.up-next {
+  color: var(--berry);
+  font-weight: 700;
+  text-align: right;
+}
+
+.entry-anchor {
+  scroll-margin-top: 90px;
+}
+
+/* Keep the last buttons reachable above the rest timer. */
+body:has(.timer-bar) .app {
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 130px);
+}
+
+.up-next {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

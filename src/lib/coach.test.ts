@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CHALLENGE_BY_ID } from '../data/challenges'
+import { CHALLENGE_BY_ID, CHALLENGES } from '../data/challenges'
 import { EXERCISE_BY_ID } from '../data/exercises'
 import { DEFAULT_SETTINGS } from '../db/settings'
 import type { SetEntry, Workout } from '../db/types'
@@ -115,6 +115,16 @@ describe('gamify', () => {
     const ws = [workout(TODAY, [['plank', [{ durationSec: 25 }, { durationSec: 25 }]]])]
     const xp = totalXp({ workouts: ws, fasts: [], marks: [], joins: [{ id: 'plank-30', startDate: TODAY, joinedAt: 0 }], get }, TODAY)
     expect(xp).toBe(2 * 10 + 50 + 30)
+  })
+
+  it('points every challenge at a real exercise that tracks the right thing', () => {
+    for (const c of CHALLENGES) {
+      if (c.kind === 'mobility') continue
+      const ex = EXERCISE_BY_ID[c.exerciseId!]
+      expect(ex, c.id).toBeDefined()
+      expect(ex.track, c.id).toBe(c.kind === 'hold' ? 'hold' : 'reps')
+    }
+    expect(new Set(CHALLENGES.map((c) => c.id)).size).toBe(CHALLENGES.length)
   })
 
   it('always offers "finish a workout" in the daily quests', () => {
