@@ -41,12 +41,14 @@ const PATHS = {
   target: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM12 12h.01',
   stretch: 'M13 4.5a1.5 1.5 0 1 0 0 .01M8 21l3.5-7 3 2.5V21M6 10.5l4.5-3 3.5 2 4 1M11.5 14l1.5-4.5',
   minus: 'M5 12h14',
+  heart: 'M12 20.5s-7.5-4.6-7.5-10.4A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.7c0 5.8-7.5 10.4-7.5 10.4z',
+  sparkle: 'M11 2.5l1.9 5.6 5.6 1.9-5.6 1.9L11 17.5l-1.9-5.6L3.5 10l5.6-1.9zM18.5 14l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z',
   sun: 'M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4',
 } as const
 
 export type IconName = keyof typeof PATHS
 
-const FILLED: Partial<Record<IconName, boolean>> = { play: true, pause: true }
+const FILLED: Partial<Record<IconName, boolean>> = { play: true, pause: true, sparkle: true }
 
 export function Icon({ name, size = 22, className, strokeWidth = 2 }: { name: IconName; size?: number; className?: string; strokeWidth?: number }) {
   const filled = FILLED[name]

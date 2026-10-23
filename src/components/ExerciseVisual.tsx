@@ -15,6 +15,12 @@ function useObjectUrl(blob: Blob | null | undefined): string | null {
   return url
 }
 
+/** A list thumbnail photo that quietly falls back to an icon when it can't load (e.g. offline). */
+export function ThumbPhoto({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false)
+  return failed ? <Icon name="dumbbell" className="muted" /> : <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} />
+}
+
 /** Start and end photos, cross-fading so the movement reads like an animation. */
 function PhotoPair({ id, name }: { id: string; name: string }) {
   const urls = fedbImageUrls(id)
@@ -88,7 +94,7 @@ export function ExerciseThumb({ exercise, large }: { exercise: ExerciseInfo; lar
   if (exercise.fedb)
     return (
       <div className={cls}>
-        <img src={fedbImageUrls(exercise.fedb)[0]} alt="" loading="lazy" />
+        <ThumbPhoto src={fedbImageUrls(exercise.fedb)[0]} />
       </div>
     )
   if (userPhoto)

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ExerciseThumb } from '../../components/ExerciseVisual'
+import { ExerciseThumb, ThumbPhoto } from '../../components/ExerciseVisual'
 import { Icon } from '../../components/Icon'
 import { CATEGORY_LABELS } from '../../data/exercises'
 import type { ExerciseCategory } from '../../db/types'
@@ -99,7 +99,7 @@ export default function Library() {
             {full.map((e) => (
               <Link key={e.id} className="list-item" to={`/exercise/${encodeURIComponent(`fedb:${e.id}`)}`}>
                 <div className="thumb">
-                  <img src={fedbImageUrls(e.id)[0]} alt="" loading="lazy" />
+                  <ThumbPhoto src={fedbImageUrls(e.id)[0]} />
                 </div>
                 <div className="grow">
                   <div className="title">{e.name}</div>

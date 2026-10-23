@@ -5,7 +5,7 @@ import type { ExerciseCategory, TrackType } from '../db/types'
 import { searchExercises, useExercises, type ExerciseInfo } from '../lib/exercises'
 import { fedbImageUrls, fedbToCustom, useFedb, type FedbExercise } from '../lib/fedb'
 import { uid } from '../lib/workouts'
-import { ExerciseThumb } from './ExerciseVisual'
+import { ExerciseThumb, ThumbPhoto } from './ExerciseVisual'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
 
@@ -110,7 +110,7 @@ export function ExercisePicker({ open, onClose, onPick, title = 'Add exercises' 
               return (
                 <button key={e.id} className="list-item" onClick={() => (on ? toggle(id) : void pickLibrary(e))}>
                   <div className="thumb">
-                    <img src={fedbImageUrls(e.id)[0]} alt="" loading="lazy" />
+                    <ThumbPhoto src={fedbImageUrls(e.id)[0]} />
                   </div>
                   <div className="grow">
                     <div className="title">{e.name}</div>
