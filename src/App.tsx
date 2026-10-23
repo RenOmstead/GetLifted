@@ -33,7 +33,9 @@ function BottomNav() {
       <nav aria-label="Main">
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} className={isActive(t.match) ? 'active' : ''} end={t.to === '/'}>
-            <Icon name={t.icon} size={24} />
+            <span className="nav-icon">
+              <Icon name={t.icon} size={22} />
+            </span>
             {t.label}
           </NavLink>
         ))}

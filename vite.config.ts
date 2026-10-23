@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'Get Lifted',
         description:
           'Track workouts, calisthenics progress, meals, vitamins, fasting and body weight.',
-        theme_color: '#0d0d0d',
-        background_color: '#0d0d0d',
+        theme_color: '#fde4ee',
+        background_color: '#fff6f8',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '.',
