@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { db } from '../db/db'
 import { Figure, hasFigure } from '../figures/Figure'
 import { FIGURES } from '../figures/poses'
+import { artUrl } from '../lib/art'
 import { fedbImageUrls } from '../lib/fedb'
 import type { ExerciseInfo } from '../lib/exercises'
 import { Icon } from './Icon'
@@ -47,35 +48,58 @@ function PhotoPair({ id, name }: { id: string; name: string }) {
   )
 }
 
-/** The main demonstration for an exercise: animated figure, photos, or your own photo. */
+type View = 'art' | 'figure' | 'photos' | 'mine'
+const VIEW_LABELS: Record<View, string> = { art: 'Picture', figure: 'Moving', photos: 'Photos', mine: 'Yours' }
+
+/** The main demonstration for an exercise: character picture, animated figure, photos, or your own photo. */
 export function ExerciseVisual({ exercise }: { exercise: ExerciseInfo }) {
   const note = useLiveQuery(() => db.exerciseNotes.get(exercise.id), [exercise.id])
   const userPhoto = useObjectUrl(note?.photo)
-  if (hasFigure(exercise.figure))
-    return (
-      <div className="visual">
-        <Figure id={exercise.figure!} title={`${exercise.name} demonstration`} />
-        {FIGURES[exercise.figure!].caption && <span className="visual-caption">{FIGURES[exercise.figure!].caption}</span>}
-      </div>
-    )
-  if (exercise.fedb)
-    return (
-      <div className="visual photo">
-        <PhotoPair id={exercise.fedb} name={exercise.name} />
-      </div>
-    )
-  if (userPhoto)
-    return (
-      <div className="visual photo">
-        <img src={userPhoto} alt={`Your photo of ${exercise.name}`} />
-      </div>
-    )
+  const art = artUrl(exercise.id)
+  const [chosen, setChosen] = useState<View | null>(null)
+  const views: View[] = []
+  if (art) views.push('art')
+  if (hasFigure(exercise.figure)) views.push('figure')
+  if (exercise.fedb) views.push('photos')
+  if (userPhoto) views.push('mine')
+  const view = chosen && views.includes(chosen) ? chosen : views[0]
+
   return (
-    <div className="visual">
-      <div className="empty small">
-        <Icon name="camera" size={28} />
-        Add a photo below so you remember the setup.
-      </div>
+    <div className="stack-sm">
+      {view === 'art' ? (
+        <div className="visual art">
+          <img src={art} alt={`${exercise.name}, illustrated`} />
+        </div>
+      ) : view === 'figure' ? (
+        <div className="visual">
+          <Figure id={exercise.figure!} title={`${exercise.name} demonstration`} />
+          {FIGURES[exercise.figure!].caption && <span className="visual-caption">{FIGURES[exercise.figure!].caption}</span>}
+        </div>
+      ) : view === 'photos' ? (
+        <div className="visual photo">
+          <PhotoPair id={exercise.fedb!} name={exercise.name} />
+        </div>
+      ) : view === 'mine' ? (
+        <div className="visual photo">
+          <img src={userPhoto!} alt={`Your photo of ${exercise.name}`} />
+        </div>
+      ) : (
+        <div className="visual">
+          <div className="empty small">
+            <Icon name="camera" size={28} />
+            Add a photo below so you remember the setup.
+          </div>
+        </div>
+      )}
+      {views.length > 1 && (
+        <div className="visual-tabs" role="tablist" aria-label="How to show this exercise">
+          {views.map((v) => (
+            <button key={v} role="tab" aria-selected={v === view} className={`chip ${v === view ? 'active' : ''}`} onClick={() => setChosen(v)}>
+              {VIEW_LABELS[v]}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -85,6 +109,13 @@ export function ExerciseThumb({ exercise, large }: { exercise: ExerciseInfo; lar
   const note = useLiveQuery(() => (exercise.custom && !exercise.fedb ? db.exerciseNotes.get(exercise.id) : undefined), [exercise.id, exercise.custom])
   const userPhoto = useObjectUrl(note?.photo)
   const cls = `thumb ${large ? 'lg' : ''}`
+  const art = artUrl(exercise.id)
+  if (art)
+    return (
+      <div className={`${cls} art`}>
+        <img src={art} alt="" loading="lazy" />
+      </div>
+    )
   if (hasFigure(exercise.figure))
     return (
       <div className={cls}>
