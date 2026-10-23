@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { Decor } from '../components/Decor'
 import { Icon } from '../components/Icon'
 import { LineChart } from '../components/LineChart'
 import { NumInput } from '../components/NumInput'
@@ -127,6 +128,7 @@ export default function Body() {
   return (
     <div className="page">
       <div className="page-header">
+        <Decor name="pink_lamp" className="decor-header" />
         <h1>Body</h1>
         <button className="btn primary sm" onClick={() => setSheet({})}>
           <Icon name="plus" size={16} /> Log weight

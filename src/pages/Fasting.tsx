@@ -45,10 +45,7 @@ export default function Fasting() {
   const reached = active != null && elapsed >= goalMs
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <h1>Fasting</h1>
-      </div>
+    <div className="stack" style={{ gap: 16 }}>
 
       <div className="card stack" style={{ alignItems: 'center' }}>
         <Ring value={elapsed} max={goalMs} size={230} stroke={14} done={reached} label="Fasting progress">

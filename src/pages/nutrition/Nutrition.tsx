@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { Decor } from '../../components/Decor'
 import { Icon } from '../../components/Icon'
 import { NumInput } from '../../components/NumInput'
 import { Meter, Ring } from '../../components/Ring'
@@ -13,6 +14,7 @@ import { addDays, dateKey, formatDayLabel } from '../../lib/dates'
 import { evaluateIntake, formatAmount, STATUS_TEXT, supplementTotals, type NutrientRow } from '../../lib/nutrients'
 import { mealTotals } from '../../lib/nutrition'
 import { fmt, mlToDisplay, volumeUnit, displayToMl } from '../../lib/units'
+import Fasting from '../Fasting'
 import { AddFoodSheet, MEAL_LABELS } from './AddFoodSheet'
 
 const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack']
@@ -36,23 +38,30 @@ export function DayNav({ date, onChange }: { date: string; onChange: (d: string)
 
 export default function Nutrition() {
   const [params, setParams] = useSearchParams()
-  const tab = params.get('tab') === 'vitamins' ? 'vitamins' : 'meals'
+  const tab = (['vitamins', 'fasting'] as const).find((t) => t === params.get('tab')) ?? 'meals'
   const [date, setDate] = useState(dateKey())
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Nutrition</h1>
+        <div className="grow">
+          <h1>Nourish</h1>
+          <div className="subtitle">Meals, vitamins and fasting</div>
+        </div>
+        <Decor name="sage_mug" className="decor-header" />
       </div>
       <div className="segmented">
         <button className={tab === 'meals' ? 'active' : ''} onClick={() => setParams({}, { replace: true })}>
-          Meals & calories
+          Meals
         </button>
         <button className={tab === 'vitamins' ? 'active' : ''} onClick={() => setParams({ tab: 'vitamins' }, { replace: true })}>
-          Vitamins & supplements
+          Vitamins
+        </button>
+        <button className={tab === 'fasting' ? 'active' : ''} onClick={() => setParams({ tab: 'fasting' }, { replace: true })}>
+          Fasting
         </button>
       </div>
-      <DayNav date={date} onChange={setDate} />
-      {tab === 'meals' ? <MealsTab date={date} /> : <VitaminsTab date={date} />}
+      {tab !== 'fasting' && <DayNav date={date} onChange={setDate} />}
+      {tab === 'meals' ? <MealsTab date={date} /> : tab === 'vitamins' ? <VitaminsTab date={date} /> : <Fasting />}
     </div>
   )
 }

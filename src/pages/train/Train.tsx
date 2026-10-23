@@ -1,27 +1,24 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Decor } from '../../components/Decor'
 import { ExerciseThumb } from '../../components/ExerciseVisual'
 import { Icon } from '../../components/Icon'
-import { Meter } from '../../components/Ring'
 import { Sheet } from '../../components/Sheet'
 import { STARTER_ROUTINES } from '../../data/starterRoutines'
-import { SKILLS, targetLabel } from '../../data/skills'
 import { db } from '../../db/db'
 import { updateSettings, useSettings } from '../../db/settings'
 import type { Routine, Workout } from '../../db/types'
 import { addDays, dateKey, formatClock, formatDayLabel, formatDuration, parseDateKey } from '../../lib/dates'
 import { useExercises } from '../../lib/exercises'
-import { skillProgress } from '../../lib/progression'
 import { fmt, kgToDisplay, weightUnit } from '../../lib/units'
 import { startWorkout, useActiveWorkout } from '../../lib/workoutActions'
 import { workoutStats } from '../../lib/workouts'
 
-type Tab = 'today' | 'routines' | 'skills' | 'history'
+type Tab = 'today' | 'routines' | 'history'
 const TABS: [Tab, string][] = [
   ['today', 'Today'],
   ['routines', 'Routines'],
-  ['skills', 'Skills'],
   ['history', 'History'],
 ]
 
@@ -40,6 +37,7 @@ export default function Train() {
   return (
     <div className="page">
       <div className="page-header">
+        <Decor name="mushroom_lamp" className="decor-header" />
         <h1>Train</h1>
         <Link className="btn sm" to="/library">
           <Icon name="book" size={18} /> Exercise library
@@ -54,7 +52,6 @@ export default function Train() {
       </div>
       {tab === 'today' && <TodayTab />}
       {tab === 'routines' && <RoutinesTab />}
-      {tab === 'skills' && <SkillsTab />}
       {tab === 'history' && <HistoryTab />}
     </div>
   )
@@ -164,7 +161,7 @@ function TodayTab() {
 
       <div className="grid-2">
         <button className="btn lg" onClick={() => void start()}>
-          <Icon name="plus" /> Empty workout
+          <Icon name="plus" /> Start empty
         </button>
         <Link className="btn lg" to="/train?tab=routines">
           <Icon name="list" /> All routines
@@ -269,40 +266,6 @@ function RoutinesTab() {
           </div>
         )}
       </Sheet>
-    </>
-  )
-}
-
-function SkillsTab() {
-  const workouts = useLiveQuery(() => db.workouts.toArray(), []) ?? []
-  const marks = useLiveQuery(() => db.skillMarks.toArray(), []) ?? []
-  const { get } = useExercises()
-  return (
-    <>
-      <p className="small muted">Hit a level’s target in one workout and the next step unlocks automatically.</p>
-      {SKILLS.map((skill) => {
-        const p = skillProgress(skill, workouts, marks)
-        const current = skill.levels[Math.min(p.current, skill.levels.length - 1)]
-        const complete = p.current >= skill.levels.length
-        return (
-          <Link key={skill.id} to={`/train/skill/${skill.id}`} className="card card-link stack-sm">
-            <div className="row">
-              <ExerciseThumb exercise={get(current.exerciseId)} large />
-              <div className="grow">
-                <div className="row-between">
-                  <strong>{skill.name}</strong>
-                  <span className="badge">{skill.group}</span>
-                </div>
-                <div className="small text-2">{complete ? 'All levels complete' : `Next: ${get(current.exerciseId).name} · ${targetLabel(current)}`}</div>
-                <div className="small muted">
-                  Level {Math.min(p.current + 1, skill.levels.length)} of {skill.levels.length}
-                </div>
-              </div>
-            </div>
-            <Meter value={p.achieved} max={skill.levels.length} tone={complete ? 'good' : undefined} />
-          </Link>
-        )
-      })}
     </>
   )
 }

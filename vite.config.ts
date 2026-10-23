@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'Get Lifted',
         description:
           'Track workouts, calisthenics progress, meals, vitamins, fasting and body weight.',
-        theme_color: '#fde4ee',
-        background_color: '#fff6f8',
+        theme_color: '#2d1925',
+        background_color: '#231419',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '.',
@@ -30,7 +30,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,webmanifest}'],
         runtimeCaching: [
           {
             // Exercise library catalog and photos, so they work offline once viewed.
