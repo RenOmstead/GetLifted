@@ -1,7 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Icon } from '../components/Icon'
+import { Decor } from '../components/Decor'
+import { Icon, type IconName } from '../components/Icon'
+import { CoachCard, useCoach, useJourney } from '../components/Journey'
 import { Meter, Ring } from '../components/Ring'
 import { SKILLS, targetLabel } from '../data/skills'
 import { db } from '../db/db'
@@ -10,6 +12,7 @@ import type { Routine } from '../db/types'
 import { addDays, dateKey, formatClock, formatDuration } from '../lib/dates'
 import { useExercises } from '../lib/exercises'
 import { fastStage } from '../lib/fasting'
+import { dailyQuests } from '../lib/gamify'
 import { evaluateIntake, supplementTotals } from '../lib/nutrients'
 import { mealTotals } from '../lib/nutrition'
 import { skillProgress } from '../lib/progression'
@@ -24,13 +27,13 @@ function greeting(h: number) {
 }
 
 const AFFIRMATIONS = [
-  'Small steps, big glow ✨',
-  'Strong looks good on you 💪',
-  'Progress, not perfection 🌸',
-  'Hydrate, stretch, shine 💧',
-  'You showed up. That’s the hardest part 💕',
-  'Be gentle with yourself, and strong anyway 🎀',
-  'Every rep counts 💗',
+  'Every rep is a little spell ✦',
+  'Strong is its own kind of magic',
+  'Small steps light long paths 🕯️',
+  'Brew your strength slowly 🧪',
+  'The moon never rushes, and still it rises 🌙',
+  'You showed up. That’s the hardest charm to cast ✦',
+  'Stretch, sip, and shine 🍵',
 ]
 
 /** Same affirmation all day, a new one tomorrow. */
@@ -53,8 +56,9 @@ export default function Today() {
   const supplements = useLiveQuery(() => db.supplements.filter((s) => s.active).toArray(), []) ?? []
   const supLogs = useLiveQuery(() => db.supplementLogs.where('date').equals(today).toArray(), [today]) ?? []
   const weights = useLiveQuery(() => db.weights.orderBy('date').reverse().limit(30).toArray(), []) ?? []
-  const workouts = useLiveQuery(() => db.workouts.toArray(), []) ?? []
-  const marks = useLiveQuery(() => db.skillMarks.toArray(), []) ?? []
+  const journey = useJourney()
+  const { workouts, marks } = journey
+  const suggestions = useCoach(journey)
   const fast = useActiveFast()
   const [weightSheet, setWeightSheet] = useState(false)
 
@@ -74,6 +78,9 @@ export default function Today() {
     .filter(({ p, skill }) => p.achieved > 0 && p.current < skill.levels.length)
     .slice(0, 3)
 
+  const quests = dailyQuests({ workouts, meals, water, fasts: journey.fasts, weights, marks, settings, get }, today)
+  const questsDone = quests.filter((q) => q.value >= q.target).length
+
   const toggleSup = async (id: number, dailyServings: number) => {
     const log = supLogs.find((l) => l.supplementId === id)
     if (log?.id) await db.supplementLogs.delete(log.id)
@@ -82,26 +89,35 @@ export default function Today() {
 
   return (
     <div className="page">
+      <Link className="icon-btn filled top-settings" to="/settings" aria-label="Settings">
+        <Icon name="settings" />
+      </Link>
+      <div className="wordmark">
+        <span className="spark">✦</span>Get Lifted<span className="spark">✦</span>
+      </div>
+      <Decor name="lantern_string" className="decor-garland" />
       <div className="hero">
-        <Icon name="sparkle" size={56} className="sparkles" />
-        <div className="row" style={{ alignItems: 'flex-start' }}>
-          <div className="grow">
-            <div className="small text-2" style={{ fontWeight: 700 }}>
-              {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-            </div>
-            <h1>
-              {greeting(new Date(now).getHours())}
-              {settings.name ? `, ${settings.name}` : ''}
-            </h1>
-          </div>
-          <Link className="icon-btn filled" to="/settings" aria-label="Settings">
-            <Icon name="settings" />
+        <Decor name="black_cat" className="decor-perch" />
+        <div className="eyebrow">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+        <h1>
+          {greeting(new Date(now).getHours())}
+          {settings.name ? `, ${settings.name}` : ''}
+        </h1>
+        <p className="quote">{affirmation(now)}</p>
+        <div className="flourish" />
+        <div className="hero-stats">
+          <Link to="/quests" className={journey.streak ? 'lit' : ''}>
+            <Icon name="flame" size={16} /> {journey.streak}-day streak
+          </Link>
+          <Link to="/path">
+            <Icon name="star" size={16} /> Level {journey.level.level}
           </Link>
         </div>
-        <p className="quote">{affirmation(now)}</p>
       </div>
 
       <ActiveWorkoutCard />
+
+      <CoachCard suggestions={suggestions} limit={2} title="A whisper from your coach" />
 
       <div className="section-title">
         <h2>Training</h2>
@@ -118,7 +134,7 @@ export default function Today() {
         ))
       ) : (
         <div className="card row tint-pink">
-          <Icon name="heart" className="text-2" />
+          <Decor name="star_lantern" className="decor-inline" />
           <div className="grow small text-2">{routines.length ? 'Nothing planned today. Rest, or start something anyway.' : 'Build your first routine and plan your week.'}</div>
           <Link className="btn sm" to={routines.length ? '/train' : '/train?tab=routines'}>
             {routines.length ? 'Train' : 'Get started'}
@@ -127,7 +143,7 @@ export default function Today() {
       )}
 
       <div className="grid-2">
-        <Link to="/fasting" className="card card-link stack-sm tint-lavender">
+        <Link to="/nutrition?tab=fasting" className="card card-link stack-sm tint-lavender">
           <div className="card-title" style={{ margin: 0 }}>
             <Icon name="timer" size={18} /> Fasting
           </div>
@@ -161,7 +177,7 @@ export default function Today() {
       <div className="card stack-sm tint-sky">
         <div className="row-between">
           <div className="card-title" style={{ margin: 0 }}>
-            <Icon name="droplet" size={18} /> Water
+            <Decor name="plum_mug" className="decor-title" /> Water
           </div>
           <span className="small num">
             {fmt(mlToDisplay(waterMl, u), 0)} / {fmt(mlToDisplay(settings.waterGoalMl, u), 0)} {volumeUnit(u)}
@@ -181,7 +197,7 @@ export default function Today() {
         <div className="card stack-sm tint-butter">
           <div className="row-between">
             <div className="card-title" style={{ margin: 0 }}>
-              <Icon name="pill" size={18} /> Supplements
+              <Decor name="potion_trio" className="decor-title" /> Supplements
             </div>
             <Link className="small" to="/nutrition?tab=vitamins">
               Details
@@ -206,8 +222,31 @@ export default function Today() {
         </div>
       )}
 
+      <Link to="/quests" className="card card-link stack-sm tint-butter">
+        <div className="row-between">
+          <div className="card-title" style={{ margin: 0 }}>
+            <Icon name="trophy" size={18} /> Today’s quests
+          </div>
+          <span className="small text-2">
+            {questsDone} of {quests.length}
+          </span>
+        </div>
+        {quests.map((q) => {
+          const done = q.value >= q.target
+          return (
+            <div key={q.id} className={`row small quest ${done ? 'done' : ''}`}>
+              <span className="quest-icon sm">
+                <Icon name={(done ? 'check' : q.icon) as IconName} size={15} />
+              </span>
+              <span className="grow">{q.title}</span>
+              <span className="xp-tag">+{q.xp}</span>
+            </div>
+          )
+        })}
+      </Link>
+
       <div className="card row tint-mint">
-        <Icon name="body" className="text-2" />
+        <Decor name="pink_lamp" className="decor-inline" />
         <div className="grow">
           <div style={{ fontWeight: 650 }}>{latest ? `${fmt(kgToDisplay(latest.kg, u))} ${weightUnit(u)}` : 'No weigh-ins yet'}</div>
           <div className="small muted">
@@ -227,14 +266,16 @@ export default function Today() {
         <>
           <div className="section-title">
             <h2>Next skill goals</h2>
-            <Link to="/train?tab=skills">All skills</Link>
+            <Link to="/path">Your path</Link>
           </div>
           <div className="card flush list">
             {skillsInProgress.map(({ skill, p }) => {
               const lvl = skill.levels[p.current]
               return (
-                <Link key={skill.id} className="list-item" to={`/train/skill/${skill.id}`}>
-                  <Icon name="star" className="muted" />
+                <Link key={skill.id} className="list-item" to={`/path?skill=${skill.id}`}>
+                  <span className="trail-mini" aria-hidden="true">
+                    ★
+                  </span>
                   <div className="grow">
                     <div className="title">{skill.name}</div>
                     <div className="meta">

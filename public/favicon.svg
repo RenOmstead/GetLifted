@@ -1,7 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f27aa9"/><stop offset="1" stop-color="#a77ef0"/></linearGradient></defs>
-<rect width="512" height="512" rx="128" fill="url(#g)"/>
-<g transform="translate(256 262) scale(0.86) translate(-256 -256)">
-<g fill="none" stroke="#fff" stroke-linecap="round"><path d="M150 256h212" stroke-width="44"/><path d="M150 168v176M362 168v176" stroke-width="56"/><path d="M84 214v84M428 214v84" stroke-width="48"/></g>
-<path transform="translate(256 104) scale(4.4) translate(-12 -14)" fill="#fff" d="M12 20.5s-7.5-4.6-7.5-10.4A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.7c0 5.8-7.5 10.4-7.5 10.4z"/>
+<defs>
+<radialGradient id="bg" cx=".5" cy=".38" r=".75"><stop offset="0" stop-color="#6e4359"/><stop offset=".6" stop-color="#3f2433"/><stop offset="1" stop-color="#231419"/></radialGradient>
+<linearGradient id="gold" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="400"><stop offset="0" stop-color="#fbe7b4"/><stop offset=".55" stop-color="#e2b56e"/><stop offset="1" stop-color="#b9843f"/></linearGradient>
+</defs>
+<rect width="512" height="512" rx="116" fill="url(#bg)"/>
+<rect x="18" y="18" width="476" height="476" rx="100" fill="none" stroke="#d8aa66" stroke-opacity=".55" stroke-width="6"/>
+<g transform="translate(256 256) scale(0.9) translate(-256 -256)">
+<g fill="none" stroke="url(#gold)" stroke-linecap="round"><path d="M150 300h212" stroke-width="40"/><path d="M150 216v168M362 216v168" stroke-width="54"/><path d="M86 260v80M426 260v80" stroke-width="46"/></g>
+<path fill="url(#gold)" d="M268 92a74 74 0 1 0 74 96 58 58 0 1 1-74-96z"/>
+<g fill="#f6e6cf"><path transform="translate(372 108) scale(26)" d="M0-1 .22-.22 1 0 .22.22 0 1-.22.22-1 0-.22-.22z"/><path transform="translate(148 150) scale(18)" d="M0-1 .22-.22 1 0 .22.22 0 1-.22.22-1 0-.22-.22z"/><path transform="translate(404 190) scale(12)" d="M0-1 .22-.22 1 0 .22.22 0 1-.22.22-1 0-.22-.22z"/></g>
 </g></svg>

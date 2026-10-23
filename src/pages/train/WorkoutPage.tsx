@@ -185,8 +185,7 @@ export default function WorkoutPage() {
         </button>
         <div className="grow">
           <input
-            className="input"
-            style={{ fontWeight: 700, fontSize: '1.15rem', background: 'transparent', border: 0, padding: 0, minHeight: 32 }}
+            className="input title-input"
             value={w.name}
             onChange={(e) => update((wk) => ({ ...wk, name: e.target.value }))}
             aria-label="Workout name"

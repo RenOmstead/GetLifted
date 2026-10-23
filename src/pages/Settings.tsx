@@ -1,12 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { Decor } from '../components/Decor'
 import { Icon } from '../components/Icon'
 import { NumInput } from '../components/NumInput'
 import { confirmAction } from '../components/Sheet'
 import { db } from '../db/db'
 import { ageFromSettings, updateSettings, useSettings } from '../db/settings'
-import type { ActivityLevel, Sex, ThemePref, Units } from '../db/types'
+import type { ActivityLevel, Sex, Units } from '../db/types'
 import { exportBackup, importBackup, resetAll } from '../lib/backup'
 import { formatSeconds } from '../lib/dates'
 import { ACTIVITY, suggestGoals, tdee, type GoalKind } from '../lib/nutrition'
@@ -43,6 +44,7 @@ export default function Settings() {
           <Icon name="chevronLeft" />
         </button>
         <h1>Settings</h1>
+        <Decor name="drying_herbs" className="decor-header" />
       </div>
 
       <div className="section-title">
@@ -176,17 +178,6 @@ export default function Settings() {
           <span>Vibrate (Android)</span>
           <input type="checkbox" checked={s.restVibrate} onChange={(e) => void updateSettings({ restVibrate: e.target.checked })} />
         </label>
-      </div>
-
-      <div className="section-title">
-        <h2>Appearance</h2>
-      </div>
-      <div className="segmented">
-        {(['system', 'light', 'dark'] as ThemePref[]).map((t) => (
-          <button key={t} className={s.theme === t ? 'active' : ''} onClick={() => void updateSettings({ theme: t })}>
-            {t === 'system' ? 'Automatic' : t === 'light' ? 'Light' : 'Dark'}
-          </button>
-        ))}
       </div>
 
       <div className="section-title">

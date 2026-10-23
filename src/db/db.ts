@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type {
+  ChallengeJoin,
   CustomExercise,
   ExerciseNote,
   Fast,
@@ -29,6 +30,7 @@ export type GetLiftedDB = Dexie & {
   routines: EntityTable<Routine, 'id'>
   exerciseNotes: EntityTable<ExerciseNote, 'exerciseId'>
   skillMarks: EntityTable<SkillMark, 'id'>
+  challenges: EntityTable<ChallengeJoin, 'id'>
 }
 
 // Everything lives on-device in IndexedDB; Settings → Backup exports it as JSON.
@@ -50,6 +52,10 @@ db.version(1).stores({
   skillMarks: 'id, skillId',
 })
 
+db.version(2).stores({
+  challenges: 'id',
+})
+
 export const TABLE_NAMES = [
   'settings',
   'weights',
@@ -64,4 +70,5 @@ export const TABLE_NAMES = [
   'routines',
   'exerciseNotes',
   'skillMarks',
+  'challenges',
 ] as const

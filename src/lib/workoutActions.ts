@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { SKILLS } from '../data/skills'
 import { db } from '../db/db'
-import type { Routine, Workout } from '../db/types'
+import type { Routine, RoutineEntry, Workout } from '../db/types'
 import { dateKey } from './dates'
 import { skillProgress } from './progression'
 import { entriesFromRoutine, exerciseHistory, setScore } from './workouts'
@@ -28,6 +28,18 @@ export async function startWorkout(routine?: Routine): Promise<number> {
     endedAt: null,
     entries: routine ? entriesFromRoutine(routine.entries, workouts) : [],
   }) as Promise<number>
+}
+
+/** Adds exercises to the workout in progress, or starts a new one with them. Returns the workout id. */
+export async function workoutWith(entries: RoutineEntry[], name: string): Promise<number> {
+  const workouts = await db.workouts.toArray()
+  const fresh = entriesFromRoutine(entries, workouts)
+  const active = await getActiveWorkout()
+  if (active?.id) {
+    await db.workouts.update(active.id, { entries: [...active.entries, ...fresh] })
+    return active.id
+  }
+  return db.workouts.add({ date: dateKey(), name, routineId: null, startedAt: Date.now(), endedAt: null, entries: fresh }) as Promise<number>
 }
 
 export interface WorkoutHighlights {

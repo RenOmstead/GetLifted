@@ -21,8 +21,8 @@ export function Ring({ value, max, size = 120, stroke = 10, done, children, labe
       <svg width={size} height={size}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f0679e" />
-            <stop offset="100%" stopColor="#9b6ce8" />
+            <stop offset="0%" stopColor="#f0cf8a" />
+            <stop offset="100%" stopColor="#c47f82" />
           </linearGradient>
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} className="ring-track" strokeWidth={stroke} fill="none" />
