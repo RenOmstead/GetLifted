@@ -1,7 +1,8 @@
 import { CHALLENGES, CHALLENGE_BY_ID, type ChallengeDay, type ChallengeDef } from '../data/challenges'
 import { SKILLS } from '../data/skills'
-import type { ChallengeJoin, Fast, MealEntry, Settings, SkillMark, WaterLog, WeightEntry, Workout } from '../db/types'
-import { addDays, dateKey, parseDateKey } from './dates'
+import { STARTER_ROUTINES } from '../data/starterRoutines'
+import type { ChallengeJoin, RoutineEntry, Fast, MealEntry, Settings, SkillMark, WaterLog, WeightEntry, Workout } from '../db/types'
+import { addDays, dateKey, formatSeconds, parseDateKey } from './dates'
 import type { ExerciseInfo } from './exercises'
 import { fastHours } from './fasting'
 import { mealTotals } from './nutrition'
@@ -131,6 +132,25 @@ export function challengeStatus(def: ChallengeDef, join: ChallengeJoin, workouts
     finishedAll: days.every((d) => d.state === 'done'),
     days,
   }
+}
+
+/* ── Doing a challenge day ── */
+
+/** What "Do today's" adds to your workout for a challenge day. */
+export function challengeEntries(def: ChallengeDef, target: number): RoutineEntry[] {
+  if (def.kind === 'mobility') {
+    const [joint, flex] = STARTER_ROUTINES
+    const entries = [...joint.entries]
+    if (target > 5.5) entries.push(...flex.entries.map((e) => ({ ...e, sets: target > 11 ? 2 : 1 })))
+    return entries
+  }
+  if (def.kind === 'hold') return [{ exerciseId: def.exerciseId!, sets: 1, durationSec: target }]
+  const sets = Math.max(1, Math.ceil(target / 15))
+  return [{ exerciseId: def.exerciseId!, sets, reps: Math.ceil(target / sets) }]
+}
+
+export function dayText(def: ChallengeDef, target: number) {
+  return def.kind === 'hold' ? `hold for ${formatSeconds(target)}` : def.kind === 'mobility' ? `${target} minutes of mobility` : `${target} reps in total`
 }
 
 /* ── Quests ───────────────────────────────────────────────────────── */

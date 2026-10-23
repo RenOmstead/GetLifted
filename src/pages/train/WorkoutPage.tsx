@@ -7,6 +7,7 @@ import { HoldTimer } from '../../components/HoldTimer'
 import { HowToSheet } from '../../components/HowTo'
 import { Icon } from '../../components/Icon'
 import { NumInput } from '../../components/NumInput'
+import { Meter } from '../../components/Ring'
 import { useRestTimer } from '../../components/RestTimer'
 import { Sheet, confirmAction } from '../../components/Sheet'
 import { db } from '../../db/db'
@@ -173,6 +174,9 @@ export default function WorkoutPage() {
   }
 
   const stats = workoutStats(w)
+  const totalSets = w.entries.reduce((n, e) => n + e.sets.length, 0)
+  const nextEntry = w.entries.find((e) => e.sets.some((x) => !x.done))
+  const nextSetNo = nextEntry ? nextEntry.sets.findIndex((x) => !x.done) + 1 : 0
   const holdEntry = hold ? w.entries.find((e) => e.id === hold.entryId) : undefined
   const holdEx = holdEntry ? get(holdEntry.exerciseId) : undefined
   const holdSet = holdEntry?.sets.find((s) => s.id === hold?.setId)
@@ -199,6 +203,26 @@ export default function WorkoutPage() {
         </button>
       </div>
 
+      {active && totalSets > 0 && (
+        <div className="card tight stack-sm workout-progress">
+          <div className="row-between small">
+            <span className="num">
+              <strong>{stats.sets}</strong> of {totalSets} sets
+            </span>
+            {nextEntry ? (
+              <button className="plain up-next" onClick={() => document.getElementById(`entry-${nextEntry.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                Next: {get(nextEntry.exerciseId).name} · set {nextSetNo} ↓
+              </button>
+            ) : (
+              <span className="status good">
+                <Icon name="check" size={14} /> All done. Finish below!
+              </span>
+            )}
+          </div>
+          <Meter value={stats.sets} max={totalSets} tone={stats.sets >= totalSets ? 'good' : undefined} />
+        </div>
+      )}
+
       {w.entries.length === 0 && (
         <div className="card empty">
           <Icon name="dumbbell" size={32} />
@@ -210,8 +234,8 @@ export default function WorkoutPage() {
         const ex = get(entry.exerciseId)
         const prev = lastSets(allWorkouts, entry.exerciseId, w.id)
         return (
+          <div key={entry.id} id={`entry-${entry.id}`} className="entry-anchor">
           <EntryCard
-            key={entry.id}
             entry={entry}
             exercise={ex}
             previous={prev}
@@ -229,6 +253,7 @@ export default function WorkoutPage() {
             }
             onRemoveSet={() => updateEntry(entry.id, (e) => ({ ...e, sets: e.sets.slice(0, -1) }))}
           />
+          </div>
         )
       })}
 
@@ -381,7 +406,7 @@ export default function WorkoutPage() {
                 </div>
               </div>
             ))}
-            {!summary.records.length && !summary.skillLevels.length && <p className="muted">Nice work, you showed up for yourself today 💕</p>}
+            {!summary.records.length && !summary.skillLevels.length && <p className="muted">Beautifully done. You showed up for yourself today ✦</p>}
             <button className="btn primary lg block" onClick={() => navigate('/train', { replace: true })}>
               Done
             </button>
@@ -444,7 +469,9 @@ function EntryCard({ entry, exercise, previous, units, onShowHowTo, onMenu, onSe
           <span className="set-head">Done</span>
         </div>
         {entry.sets.map((s, i) => {
-          const ph = previous[i] ?? previous.at(-1)
+          // Empty fields suggest the set you just did, or else last time's numbers.
+          const above = entry.sets.slice(0, i).reverse().find((x) => x.done)
+          const ph = above ?? previous[i] ?? previous.at(-1)
           return (
             <div className={`set-row ${s.done ? 'done' : ''}`} key={s.id}>
               <span className="set-no">{i + 1}</span>

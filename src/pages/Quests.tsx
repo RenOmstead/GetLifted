@@ -5,13 +5,12 @@ import { Icon, type IconName } from '../components/Icon'
 import { useJourney, useTryNow, XpStrip } from '../components/Journey'
 import { Meter } from '../components/Ring'
 import { confirmAction, Sheet } from '../components/Sheet'
-import { CHALLENGES, type ChallengeDef } from '../data/challenges'
-import { STARTER_ROUTINES } from '../data/starterRoutines'
+import { CHALLENGE_BY_ID, CHALLENGE_TAGS, CHALLENGES, type ChallengeDef, type ChallengeTag } from '../data/challenges'
 import { db } from '../db/db'
 import { useSettings } from '../db/settings'
-import type { RoutineEntry, Units } from '../db/types'
+import type { Units } from '../db/types'
 import { addDays, formatSeconds, parseDateKey } from '../lib/dates'
-import { badges, challengeStatus, dailyQuests, dayTarget, weeklyQuests, type Badge, type ChallengeStatus, type Quest } from '../lib/gamify'
+import { badges, challengeEntries, challengeStatus, dailyQuests, dayTarget, dayText, weeklyQuests, type Badge, type ChallengeStatus, type Quest } from '../lib/gamify'
 import { fmt, mlToDisplay, volumeUnit } from '../lib/units'
 import { mondayOf } from './train/Train'
 
@@ -35,6 +34,7 @@ export default function Quests() {
   const earned = badges({ ...ctx, joins: journey.joins }, journey.today)
   const [badge, setBadge] = useState<Badge | null>(null)
   const joinedIds = new Set(journey.joins.map((j) => j.id))
+  const [tag, setTag] = useState<ChallengeTag | 'All'>('All')
 
   return (
     <div className="page">
@@ -47,6 +47,18 @@ export default function Quests() {
       </div>
 
       <StreakCard journey={journey} />
+
+      {journey.joins.length > 0 && (
+        <>
+          <div className="section-title">
+            <h2>Your challenges</h2>
+          </div>
+          {journey.joins.map((j) => {
+            const def = CHALLENGE_BY_ID[j.id]
+            return def ? <ChallengeCard key={j.id} status={challengeStatus(def, j, journey.workouts, journey.get, journey.today)} journey={journey} /> : null
+          })}
+        </>
+      )}
 
       <div className="section-title">
         <h2>Today’s quests</h2>
@@ -63,13 +75,17 @@ export default function Quests() {
       <QuestList quests={weekly} units={settings.units} />
 
       <div className="section-title">
-        <h2>Challenges</h2>
+        <h2>Find a challenge</h2>
+        <span className="small muted">{CHALLENGES.length - joinedIds.size} to try</span>
       </div>
-      {journey.joins.map((j) => {
-        const def = CHALLENGES.find((c) => c.id === j.id)
-        return def ? <ChallengeCard key={j.id} status={challengeStatus(def, j, journey.workouts, journey.get, journey.today)} journey={journey} /> : null
-      })}
-      {CHALLENGES.filter((c) => !joinedIds.has(c.id)).map((c) => (
+      <div className="chips" role="tablist" aria-label="Challenge type">
+        {(['All', ...CHALLENGE_TAGS] as const).map((t) => (
+          <button key={t} role="tab" aria-selected={tag === t} className={`chip ${tag === t ? 'active' : ''}`} onClick={() => setTag(t)}>
+            {t}
+          </button>
+        ))}
+      </div>
+      {CHALLENGES.filter((c) => !joinedIds.has(c.id) && (tag === 'All' || c.tag === tag)).map((c) => (
         <ChallengeInvite key={c.id} def={c} today={journey.today} />
       ))}
 
@@ -158,23 +174,6 @@ function QuestList({ quests, units }: { quests: Quest[]; units: Units }) {
   )
 }
 
-/** What "Do today's" adds to your workout for a challenge day. */
-function challengeEntries(def: ChallengeDef, target: number): RoutineEntry[] {
-  if (def.kind === 'mobility') {
-    const [joint, flex] = STARTER_ROUTINES
-    const entries = [...joint.entries]
-    if (target > 5.5) entries.push(...flex.entries.map((e) => ({ ...e, sets: target > 11 ? 2 : 1 })))
-    return entries
-  }
-  if (def.kind === 'hold') return [{ exerciseId: def.exerciseId!, sets: 1, durationSec: target }]
-  const sets = Math.max(1, Math.ceil(target / 15))
-  return [{ exerciseId: def.exerciseId!, sets, reps: Math.ceil(target / sets) }]
-}
-
-function dayText(def: ChallengeDef, target: number) {
-  return def.kind === 'hold' ? `hold for ${formatSeconds(target)}` : def.kind === 'mobility' ? `${target} minutes of mobility` : `${target} reps in total`
-}
-
 function ChallengeCard({ status, journey }: { status: ChallengeStatus; journey: Journey }) {
   const tryNow = useTryNow()
   const { def, days, dayIndex, over, finishedAll } = status
@@ -249,7 +248,10 @@ function ChallengeCard({ status, journey }: { status: ChallengeStatus; journey: 
 }
 
 function ChallengeInvite({ def, today }: { def: ChallengeDef; today: string }) {
-  const join = () => db.challenges.put({ id: def.id, startDate: today, joinedAt: Date.now() })
+  const join = async () => {
+    await db.challenges.put({ id: def.id, startDate: today, joinedAt: Date.now() })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const first = def.days[0]
   const last = def.days.filter((d) => !d.rest).at(-1)!
   return (
