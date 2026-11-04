@@ -56,6 +56,23 @@ export interface YellowstoneSettings {
   food: { mode: 'calories' | 'protein' | 'habits' | 'none'; deficit: number; proteinPerKg: number }
   /** Stepping stones already celebrated. */
   celebrated?: string[]
+  /** Your answers to the weight-goal questions; missing until you answer. */
+  weight?: WeightGoals
+}
+
+export interface WeightGoals {
+  /** How much weight loss matters in this program. */
+  focus: 'priority' | 'balanced' | 'not-now'
+  /** A goal weight, the riding target, or simply a downward trend. */
+  aim: 'number' | 'riding' | 'trend'
+  targetKg: number | null
+  /** gentle ≈ ½ lb a week, steady ≈ 1 lb a week, none = habits, no pace. */
+  pace: 'gentle' | 'steady' | 'none'
+  weighIns: 'daily' | 'weekly' | 'rarely'
+  /** Pounds between weight stepping stones; 0 = only the main goal. */
+  milestoneLb: number
+  why: string
+  answeredAt: number
 }
 
 export interface WeightEntry {

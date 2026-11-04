@@ -2715,3 +2715,56 @@ body:has(.timer-bar) .app {
   color: var(--brass);
   font-size: 1.05rem;
 }
+
+/* Weight-goal questions */
+.quiz h3 {
+  font-family: var(--font-display);
+  color: var(--plum);
+  font-size: 1.2rem;
+}
+
+.quiz-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.quiz-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--paper-3);
+  border: 1px solid var(--paper-edge);
+}
+
+.quiz-dots span.done {
+  background: var(--brass);
+}
+
+.quiz-dots span.on {
+  width: 20px;
+  border-radius: 999px;
+  background: var(--plum);
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--paper-edge);
+  background: var(--field);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice.on {
+  border: 2px solid var(--plum);
+  background: rgba(92, 55, 73, 0.08);
+  box-shadow: 0 0 0 3px rgba(240, 207, 138, 0.35);
+}

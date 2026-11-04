@@ -17,6 +17,7 @@ import { addDays, dateKey, daysBetween, formatSeconds, formatShortDate, parseDat
 import { useExercises, type ExerciseInfo } from '../lib/exercises'
 import { displayToKg, displayToM, distanceUnit, fmt, kgToDisplay, KG_PER_LB, mToDisplay, weightUnit } from '../lib/units'
 import { workoutWith } from '../lib/workoutActions'
+import { WeightGoalsPrompt, WeightGoalsQuiz } from './WeightGoalsQuiz'
 import { Celebrate, GoalCards, LogWalk, NextStones, Roadmap, StoneTrail, useGoals } from './YellowstoneGoals'
 import {
   applyDecision,
@@ -55,7 +56,7 @@ function defaultProgram(baselineMin: number): YellowstoneSettings {
     longestHikeMi: { value: null, confirmed: false },
     elevationGainFt: { value: null, confirmed: false },
     enduranceGoal: 'Walk comfortably for about 3 hours with breaks and some hills, then do it again the next day.',
-    riding: { wanted: true, limitLb: { value: 240, confirmed: false }, marginLb: 10 },
+    riding: { wanted: false, limitLb: { value: 240, confirmed: false }, marginLb: 10 },
     food: { mode: 'calories', deficit: 400, proteinPerKg: 1.4 },
   }
 }
@@ -200,6 +201,7 @@ function Program({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
   const goals = useGoals(p)
   const [trail, setTrail] = useState(false)
   const [walkOpen, setWalkOpen] = useState(false)
+  const [weightQuiz, setWeightQuiz] = useState(false)
   if (!week) return null
   const lastMonday = addDays(prog.monday, -7)
   const needsReview = p.reviewedWeek == null || (p.reviewedWeek < prog.monday && p.startDate <= addDays(lastMonday, 6))
@@ -207,7 +209,9 @@ function Program({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
     <>
       {needsReview && <WeeklyReview prog={prog} p={p} />}
       <Celebrate p={p} goals={goals} />
-      <GoalCards p={p} goals={goals} />
+      {!p.weight && <WeightGoalsPrompt onAnswer={() => setWeightQuiz(true)} />}
+      <GoalCards p={p} goals={goals} onEditWeight={() => setWeightQuiz(true)} />
+      <WeightGoalsQuiz open={weightQuiz} onClose={() => setWeightQuiz(false)} p={p} />
       <TodayWorkout prog={prog} />
       <NextStones goals={goals} onAll={() => setTrail(true)} />
       <WeekCalendar prog={prog} p={p} />
@@ -239,8 +243,8 @@ function Program({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
       <Packing p={p} />
       <Progress prog={prog} p={p} />
       <TripDetails p={p} />
-      <Riding prog={prog} p={p} />
-      <Food prog={prog} p={p} />
+      <Riding prog={prog} p={p} onAsk={() => setWeightQuiz(true)} />
+      <Food prog={prog} p={p} onAsk={() => setWeightQuiz(true)} />
       <Schedule p={p} />
       <details className="card">
         <summary style={{ fontWeight: 700 }}>How this program works</summary>
@@ -392,7 +396,7 @@ function TodayWorkout({ prog }: { prog: Prog }) {
           {log ? 'Edit check-in' : finishedWorkout ? 'How did it go?' : 'Check in'}
         </button>
       </div>
-      <CheckIn open={checkIn} onClose={() => setCheckIn(false)} session={s} existing={log} units={prog.settings.units} short={short} />
+      <CheckIn open={checkIn} onClose={() => setCheckIn(false)} session={s} existing={log} units={prog.settings.units} short={short} askWeight={prog.p?.weight?.weighIns !== 'rarely'} />
       <HowToSheet exercise={howTo} onClose={() => setHowTo(null)} />
     </div>
   )
@@ -442,7 +446,7 @@ function PlanRow({ e, get, onHowTo }: { e: PlanExercise; get: (id: string) => Ex
 
 const EFFORT_LABELS: Record<number, string> = { 2: 'very easy', 4: 'easy, could chat', 6: 'working, short sentences', 8: 'hard', 10: 'all out' }
 
-function CheckIn({ open, onClose, session, existing, units, short }: { open: boolean; onClose: () => void; session: Session; existing?: ProgramLog; units: Units; short: boolean }) {
+function CheckIn({ open, onClose, session, existing, units, short, askWeight }: { open: boolean; onClose: () => void; session: Session; existing?: ProgramLog; units: Units; short: boolean; askWeight: boolean }) {
   const [status, setStatus] = useState<'done' | 'short' | 'skipped'>(existing?.status ?? (short ? 'short' : 'done'))
   const [effort, setEffort] = useState<number | null>(existing?.effort ?? null)
   const [soreness, setSoreness] = useState<number | null>(existing?.soreness ?? null)
@@ -559,10 +563,12 @@ function CheckIn({ open, onClose, session, existing, units, short }: { open: boo
               <input value={painNote} onChange={(e) => setPainNote(e.target.value)} placeholder="e.g. right knee on the step-downs" />
             </label>
           )}
-          <label className="field">
-            <span>Weight today ({weightUnit(units)}, optional)</span>
-            <NumInput value={weight} digits={1} onChange={setWeight} />
-          </label>
+          {askWeight && (
+            <label className="field">
+              <span>Weight today ({weightUnit(units)}, optional)</span>
+              <NumInput value={weight} digits={1} onChange={setWeight} />
+            </label>
+          )}
           <button className="btn primary block" onClick={() => void submit()}>
             Save check-in
           </button>
@@ -708,7 +714,7 @@ function Progress({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
                 </>
               )}
             </p>
-            <p className="tiny muted">Day-to-day changes of a few pounds are normal water and food shifts. The weekly average is what matters.</p>
+            <p className="tiny muted">{p.weight?.weighIns === 'rarely' ? 'You chose to weigh in rarely. That’s fine: your walking and strength wins count just as much.' : 'Day-to-day changes of a few pounds are normal water and food shifts. The weekly average is what matters.'}</p>
           </>
         ) : (
           <p className="small text-2">Add your weight in a check-in or on the Body page when you like. Fitness counts from day one, whatever the scale says.</p>
@@ -886,13 +892,14 @@ function TripForm({ p, onDone }: { p: YellowstoneSettings; onDone: () => void })
 
 /* ── Horseback goal ────────────────────────────────────────────────── */
 
-function Riding({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
+function Riding({ prog, p, onAsk }: { prog: Prog; p: YellowstoneSettings; onAsk: () => void }) {
   const weights = useLiveQuery(() => db.weights.toArray(), []) ?? []
   const [edit, setEdit] = useState(false)
   const u = prog.settings.units
+  if (!p.weight) return null
   if (!p.riding.wanted)
     return (
-      <button className="btn block" onClick={() => void save({ riding: { ...p.riding, wanted: true } }, p)}>
+      <button className="btn block" onClick={onAsk}>
         Add the optional horseback goal
       </button>
     )
@@ -965,7 +972,7 @@ const ACTIVITY_LEVELS: [number, string][] = [
   [1.55, 'Moderate activity'],
 ]
 
-function Food({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
+function Food({ prog, p, onAsk }: { prog: Prog; p: YellowstoneSettings; onAsk: () => void }) {
   const s: Settings = prog.settings
   const latest = useLiveQuery(() => db.weights.orderBy('date').last(), [])
   const [activity, setActivity] = useState(1.375)
@@ -973,7 +980,30 @@ function Food({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
   const f = p.food
   const setFood = (patch: Partial<YellowstoneSettings['food']>) => void save({ food: { ...f, ...patch } }, p)
   const ready = latest && s.heightCm && s.birthYear
-  const reference = p.riding.wanted ? lbToKg(p.riding.limitLb.value - p.riding.marginLb) : s.goalWeightKg ?? latest?.kg ?? 0
+  const w = p.weight
+  const losing = !!w && w.focus !== 'not-now'
+  // Protein is based on your goal weight if you have one; otherwise on your current weight.
+  const reference =
+    losing && w!.aim === 'number' && w!.targetKg != null
+      ? w!.targetKg
+      : losing && w!.aim === 'riding' && p.riding.wanted
+        ? lbToKg(p.riding.limitLb.value - p.riding.marginLb)
+        : latest?.kg ?? 0
+  const referenceLabel = losing && (w!.aim === 'number' || (w!.aim === 'riding' && p.riding.wanted)) ? 'your goal weight' : 'your current weight'
+  if (!w)
+    return (
+      <>
+        <div className="section-title">
+          <h2>Food</h2>
+        </div>
+        <div className="card stack-sm">
+          <p className="small text-2">Food targets wait until you’ve told the app about your weight goals and how you’d like to handle food.</p>
+          <button className="btn sm primary" onClick={onAsk}>
+            Answer the weight questions
+          </button>
+        </div>
+      </>
+    )
   const plan = ready ? foodPlan({ sex: s.sex, age: ageFromSettings(s), heightCm: s.heightCm!, weightKg: latest!.kg, activity, deficit: f.deficit, proteinPerKg: f.proteinPerKg, referenceKg: reference }) : null
   return (
     <>
@@ -982,13 +1012,15 @@ function Food({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
       </div>
       <div className="card stack-sm">
         <div className="segmented">
-          {(['calories', 'protein', 'habits'] as const).map((m) => (
+          {(['calories', 'protein', 'habits', 'none'] as const).map((m) => (
             <button key={m} className={f.mode === m ? 'active' : ''} onClick={() => setFood({ mode: m })}>
-              {m === 'calories' ? 'Calories + protein' : m === 'protein' ? 'Protein only' : 'Habits only'}
+              {m === 'calories' ? 'Calories' : m === 'protein' ? 'Protein' : m === 'habits' ? 'Habits' : 'Off'}
             </button>
           ))}
         </div>
-        {f.mode === 'habits' ? (
+        {f.mode === 'none' ? (
+          <p className="small text-2">Food is left out of your plan. Turn it on any time.</p>
+        ) : f.mode === 'habits' ? (
           <ul className="plain-list small">
             <li>Protein at every meal (a palm-sized portion)</li>
             <li>Half your plate vegetables or fruit</li>
@@ -1019,11 +1051,15 @@ function Food({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
                 </p>
                 {f.mode === 'calories' && (
                   <p>
-                    Minus a {f.deficit}-calorie deficit, never below {plan.floor.toLocaleString()}. That usually means roughly {fmt(plan.weeklyKgEstimate / KG_PER_LB, 1)} lb a week on average, though real weeks go up and down. No promises about dates: steady habits matter more.
+                    {f.deficit > 0
+                      ? `Minus a ${f.deficit}-calorie deficit (from the pace you chose), never below ${plan.floor.toLocaleString()}. That usually means roughly ${fmt(plan.weeklyKgEstimate / KG_PER_LB, 1)} lb a week on average, though real weeks go up and down. No promises about dates: steady habits matter more.`
+                      : losing
+                        ? 'No deficit: you chose habits over a set pace, so this is about maintenance. Small habit changes can still bring your weight down.'
+                        : 'No deficit: weight loss isn’t a focus right now, so this is about fuelling your training.'}
                   </p>
                 )}
                 <p>
-                  Protein: {f.proteinPerKg} g per kg of your target weight ({fmt(kgToDisplay(reference, s.units), 0)} {weightUnit(s.units)}). It helps keep muscle while you lose fat.
+                  Protein: {f.proteinPerKg} g per kg of {referenceLabel} ({fmt(kgToDisplay(reference, s.units), 0)} {weightUnit(s.units)}). It helps you build and keep muscle.
                 </p>
                 <label className="field">
                   <span>Activity</span>
@@ -1039,9 +1075,9 @@ function Food({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
                   <label className="field">
                     <span>Deficit</span>
                     <select value={f.deficit} onChange={(e) => setFood({ deficit: Number(e.target.value) })}>
-                      {[250, 400, 500].map((d) => (
+                      {[0, 250, 400, 500].map((d) => (
                         <option key={d} value={d}>
-                          {d} calories {d === 250 ? '(gentle)' : d === 400 ? '(steady)' : '(moderate)'}
+                          {d ? `${d} calories ${d === 250 ? '(gentle)' : d === 400 ? '(in between)' : '(steady)'}` : 'None (maintain)'}
                         </option>
                       ))}
                     </select>

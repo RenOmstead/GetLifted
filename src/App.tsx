@@ -1,21 +1,23 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Navigate, NavLink, Route, Routes, useLocation, useParams } from 'react-router'
 import { Icon, type IconName } from './components/Icon'
 import { RestTimerBar, RestTimerProvider } from './components/RestTimer'
 import Body from './pages/Body'
 import ExercisePage from './pages/ExercisePage'
 import Nutrition from './pages/nutrition/Nutrition'
-import SupplementEditor from './pages/nutrition/SupplementEditor'
-import Settings from './pages/Settings'
 import Today from './pages/Today'
-import Library from './pages/train/Library'
-import RoutineEditor from './pages/train/RoutineEditor'
 import Path from './pages/Path'
 import Quests from './pages/Quests'
 import Yellowstone from './pages/Yellowstone'
 import Train from './pages/train/Train'
 import WorkoutPage from './pages/train/WorkoutPage'
-import FigureGallery from './pages/dev/FigureGallery'
+
+// Pages you visit now and then load on demand, keeping startup quick. They're still cached for offline use.
+const SupplementEditor = lazy(() => import('./pages/nutrition/SupplementEditor'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Library = lazy(() => import('./pages/train/Library'))
+const RoutineEditor = lazy(() => import('./pages/train/RoutineEditor'))
+const FigureGallery = lazy(() => import('./pages/dev/FigureGallery'))
 
 const TABS: { to: string; label: string; icon: IconName; match: string[] }[] = [
   { to: '/', label: 'Today', icon: 'home', match: ['/', '/settings'] },
@@ -46,7 +48,7 @@ function BottomNav() {
 }
 
 /** Remounts a page when its :id changes, so editors never carry over the previous item's state. */
-function Keyed({ page: Page }: { page: () => React.JSX.Element }) {
+function Keyed({ page: Page }: { page: React.ComponentType }) {
   const { id } = useParams()
   return <Page key={id} />
 }
@@ -70,6 +72,7 @@ export default function App() {
       <RestTimerProvider>
         <ScrollToTop />
         <div className="app">
+          <Suspense fallback={<div className="page" />}>
           <Routes>
             <Route path="/" element={<Today />} />
             <Route path="/train" element={<Train />} />
@@ -90,6 +93,7 @@ export default function App() {
             <Route path="/dev/figures" element={<FigureGallery />} />
             <Route path="*" element={<Today />} />
           </Routes>
+          </Suspense>
         </div>
         <RestTimerBar />
         <BottomNav />
