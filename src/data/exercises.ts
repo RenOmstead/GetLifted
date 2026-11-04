@@ -858,6 +858,49 @@ export const EXERCISES: ExerciseDef[] = [
     cues: ['Don’t arch your lower back to get higher', 'Slow and squeezed beats fast and high'],
   }),
 
+  cal('sit-to-stand', 'Sit-to-Stand', 'reps', ['quadriceps', 'glutes'], {
+    equipment: 'chair or box',
+    figure: 'sit-to-stand',
+    steps: [
+      'Sit near the front of a sturdy chair, feet flat and hip-width apart.',
+      'Lean forward a little and stand up, pushing through your whole feet.',
+      'Sit back down slowly, with control. Use your hands on your thighs if you need to.',
+    ],
+    cues: ['A higher seat is easier', 'Knees point the same way as your toes'],
+  }),
+  cal('step-down', 'Step-Down', 'reps', ['quadriceps', 'glutes'], {
+    equipment: 'low step',
+    perSide: true,
+    figure: 'step-down',
+    steps: [
+      'Stand on a low step (2–6″) next to a rail or wall.',
+      'Slowly bend your standing knee and lower the other heel toward the floor, taking about 3 seconds.',
+      'Lightly tap the floor, then straighten back up. Do all reps, then switch legs.',
+    ],
+    cues: ['Trains the control you need going downhill', 'Keep your knee in line with your toes'],
+  }),
+  cal('single-leg-balance', 'Single-Leg Balance', 'hold', ['calves', 'glutes', 'abdominals'], {
+    equipment: BODY,
+    perSide: true,
+    figure: 'single-leg-balance',
+    steps: [
+      'Stand next to a counter and lift one foot a few inches off the floor.',
+      'Stand tall and balance, touching the counter only if you need to.',
+      'Hold, then switch legs. Make it harder by turning your head slowly or standing on a cushion.',
+    ],
+    cues: ['Great for uneven trails and mounting a horse', 'Soft knee, not locked'],
+  }),
+  cal('tandem-balance', 'Heel-to-Toe Balance', 'hold', ['calves', 'abdominals'], {
+    equipment: BODY,
+    figure: 'tandem-balance',
+    steps: [
+      'Stand next to a counter with one foot directly in front of the other, heel touching toes.',
+      'Stand tall and hold, eyes on a spot ahead.',
+      'Switch which foot is in front halfway through.',
+    ],
+    cues: ['An easier step before single-leg balance'],
+  }),
+
   // ── Conditioning ───────────────────────────────────────────────────
   cal('jumping-jack', 'Jumping Jack', 'reps', ['calves', 'shoulders', 'glutes'], {
     equipment: BODY,

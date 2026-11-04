@@ -2514,3 +2514,93 @@ body:has(.timer-bar) .app {
 .tips-card > summary::-webkit-details-marker {
   display: none;
 }
+
+/* Yellowstone program */
+.fact-pill {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px dashed rgba(201, 149, 79, 0.7);
+  background: rgba(240, 207, 138, 0.16);
+  color: var(--warning-text);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.fact-pill.yes {
+  border-style: solid;
+  border-color: rgba(95, 125, 69, 0.6);
+  background: rgba(95, 125, 69, 0.14);
+  color: var(--good-text);
+}
+
+.plain-list {
+  margin: 0;
+  padding-left: 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plain-list li::marker {
+  color: var(--brass);
+}
+
+.mini-h {
+  margin: 0 0 4px;
+  font-family: var(--font-engraved);
+  font-weight: 400;
+  font-size: 1.02rem;
+  letter-spacing: 0.04em;
+  color: var(--plum);
+}
+
+.today-workout {
+  border-color: var(--gold);
+}
+
+.card.flush.inner {
+  box-shadow: none;
+}
+
+.plan-row .easier {
+  margin-top: 2px;
+  color: var(--berry);
+  text-decoration: underline dotted;
+}
+
+.scale {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.scale .chip {
+  min-width: 36px;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.ys-week .day {
+  gap: 2px;
+}
+
+.ys-week .ys-done strong {
+  color: var(--good-text);
+}
+
+.ys-week .ys-rest,
+.ys-week .ys-skipped {
+  opacity: 0.7;
+}
+
+.card.safety summary {
+  color: var(--critical-text);
+}
+
+.ys-week .ys-before {
+  opacity: 0.45;
+}

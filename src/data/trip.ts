@@ -16,10 +16,10 @@ export const TRIP_TIPS: TipSection[] = [
     title: 'Training that works',
     decor: 'star_lantern',
     tips: [
-      { title: 'Grow slowly', text: 'Add no more than about 10% to your longest walk each week, and take an easier week every fourth week. Feet, knees and tendons adapt more slowly than your heart and lungs.' },
-      { title: 'Train for hills', text: 'Once a week, walk hills, stairs or an incline treadmill. Going downhill is what makes legs sore, so practise descents too.' },
+      { title: 'One change at a time', text: 'Add time, or incline, or pack weight, never two at once. Every fourth week is lighter. Feet, knees and tendons adapt more slowly than your heart and lungs.' },
+      { title: 'Train for hills', text: 'Once a week, walk hills, stairs or an incline treadmill. Going downhill is what makes legs sore, so the step-downs in your plan practise that control.' },
       { title: 'Wear your trip gear', text: 'Train in the boots, socks and daypack you’ll bring. Break new boots in over at least 50 miles before the trip.' },
-      { title: 'Rehearse back-to-back days', text: 'Your trip is many days in a row. In the peak weeks, follow each long walk with another the next day.' },
+      { title: 'Rehearse back-to-back days', text: 'Your trip is several active days in a row. Later in the plan, Friday and Saturday walks become a back-to-back pair.' },
       { title: 'Keep two strength days', text: 'Step-ups, lunges, single-leg deadlifts, calf raises and planks protect your knees and ankles on uneven trails.' },
     ],
   },
@@ -28,7 +28,7 @@ export const TRIP_TIPS: TipSection[] = [
     title: 'Yellowstone specifics',
     decor: 'orb_garland',
     tips: [
-      { title: 'It’s high up', text: 'Most of the park sits around 7,000–8,000 ft, and Mount Washburn tops 10,000 ft. Expect hikes to feel harder than at home. Take the first day or two easy and slow your pace.' },
+      { title: 'It’s high up', text: 'Most of the park sits around 7,000–8,000 ft, and Mount Washburn tops 10,000 ft. Training at home builds fitness, but it doesn’t get your body used to altitude. Expect walks to feel harder there: take the first day or two easy, slow down, rest often and drink plenty.' },
       { title: 'Start early', text: 'Summer afternoons often bring thunderstorms. Aim to be off exposed ridges and summits by early afternoon.' },
       { title: 'Plan your time', text: 'A handy estimate: about 2 mph on the trail, plus an hour for every 1,000 ft you climb, plus stops for the views.' },
       { title: 'Bears and bison', text: 'Carry bear spray where you can reach it, hike in a group and make noise. Stay at least 100 yards from bears and wolves and 25 yards from bison and elk.' },

@@ -26,17 +26,34 @@ export interface Settings {
   fastingGoalHours: number
   /** Routine ids planned for each weekday, index 0 = Sunday. */
   weeklyPlan: number[][]
-  /** A hiking trip you're training for. */
-  trip: TripGoal | null
+  /** The Yellowstone 2027 program. */
+  yellowstone: YellowstoneSettings | null
 }
 
-export interface TripGoal {
-  name: string
-  /** First day of the trip, YYYY-MM-DD. */
-  date: string
-  /** When the plan started and your longest walk then, so the plan stays put. */
+/** A value you've confirmed, or an assumption until you do. */
+export interface Fact<T> {
+  value: T
+  confirmed: boolean
+}
+
+export interface YellowstoneSettings {
   startDate: string
-  startLongMi: number
+  /** Walk minutes that felt comfortable at the start. */
+  baselineMin: number
+  level: number
+  /** Monday of the last week reviewed. */
+  reviewedWeek: string | null
+  /** Weekday (0 = Sunday) for each session. */
+  days: Record<'strengthA' | 'walkHills' | 'strengthB' | 'easyOutdoor', number>
+  tripDate: Fact<string>
+  operator: string
+  itinerary: string
+  longestHikeMi: Fact<number | null>
+  elevationGainFt: Fact<number | null>
+  /** Your own goal until the itinerary is known. */
+  enduranceGoal: string
+  riding: { wanted: boolean; limitLb: Fact<number>; marginLb: number }
+  food: { mode: 'calories' | 'protein' | 'habits' | 'none'; deficit: number; proteinPerKg: number }
 }
 
 export interface WeightEntry {
@@ -224,4 +241,31 @@ export interface ChallengeJoin {
   /** Day 1 of the challenge, YYYY-MM-DD. */
   startDate: string
   joinedAt: number
+}
+
+/** A Yellowstone program entry: a session check-in, a weekly review or a progress check. */
+export interface ProgramLog {
+  id?: number
+  date: string
+  kind: 'session' | 'review' | 'check'
+  session?: 'strengthA' | 'walkHills' | 'strengthB' | 'easyOutdoor'
+  status?: 'done' | 'short' | 'skipped'
+  walkMin?: number | null
+  distanceM?: number | null
+  elevationFt?: number | null
+  inclinePct?: number | null
+  /** 1–10 perceived effort. */
+  effort?: number | null
+  /** 0–10 soreness. */
+  soreness?: number | null
+  pain?: boolean
+  painNote?: string
+  note?: string
+  /** Weekly review: what was decided and the level after. */
+  decision?: 'progress' | 'repeat' | 'ease'
+  level?: number
+  /** Progress check results. */
+  comfortableWalkMin?: number | null
+  sitToStand30s?: number | null
+  balanceSec?: number | null
 }
