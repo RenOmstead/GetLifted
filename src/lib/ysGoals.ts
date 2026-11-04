@@ -1,4 +1,4 @@
-import type { ProgramLog, WeightEntry, Workout } from '../db/types'
+import type { ProgramLog, WeightEntry, WeightGoals, Workout } from '../db/types'
 import { addDays } from './dates'
 import { KG_PER_LB } from './units'
 import { weightTrend } from './yellowstone'
@@ -82,6 +82,8 @@ export interface Derived {
   bestCheck: (k: 'sitToStand30s' | 'balanceSec' | 'comfortableWalkMin') => number
   lostLb: number
   nowKg: number | null
+  /** 7-day average when the program started. */
+  startKg: number | null
   weeksWith3Walks: number
 }
 
@@ -121,6 +123,7 @@ export function derive(c: GoalContext): Derived {
     bestCheck: (k) => Math.max(0, ...checks.map((x) => x[k] ?? 0)),
     lostLb: start != null && nowKg != null ? Math.max(0, (start - nowKg) / KG_PER_LB) : 0,
     nowKg,
+    startKg: start ?? null,
     weeksWith3Walks: [...weeks.values()].filter((s) => s.size >= 3).length,
   }
 }
@@ -170,11 +173,44 @@ export const STONES: Stone[] = [
   { id: 'mount', track: 'balance', title: 'Step up onto a 12″ box with no hands', hint: 'Like the step to mount a horse.', manual: true },
   { id: 'bal30', track: 'balance', title: 'Balance on one leg for 30 seconds', hint: 'Steady as a heron.', measure: (d) => ({ value: d.bestCheck('balanceSec'), target: 30, unit: 's' }) },
 
-  { id: 'lb5', track: 'weight', title: 'First 5 lb (7-day average)', hint: 'No deadline. The average counts, not one weigh-in.', measure: (d) => ({ value: d.lostLb, target: 5, unit: 'lb' }) },
-  { id: 'lb10', track: 'weight', title: '10 lb down', hint: 'Walks start to feel lighter.', measure: (d) => ({ value: d.lostLb, target: 10, unit: 'lb' }) },
-  { id: 'lb15', track: 'weight', title: '15 lb down', hint: 'Steady wins.', measure: (d) => ({ value: d.lostLb, target: 15, unit: 'lb' }) },
-  { id: 'lb20', track: 'weight', title: '20 lb down', hint: 'A big, real change.', measure: (d) => ({ value: d.lostLb, target: 20, unit: 'lb' }) },
 ]
+
+const WEIGHT_HINTS = ['No deadline. The 7-day average counts, not one weigh-in.', 'Walks start to feel lighter.', 'Steady wins.', 'A big, real change.', 'Look how far you’ve come.']
+
+/**
+ * Weight stepping stones built from your answers: a stone every few pounds
+ * (if you asked for them) and your main goal, if you chose a number. Nothing
+ * here if weight isn't a focus right now.
+ */
+export function weightStones(w: WeightGoals | undefined, ridingKg: number | null, startKg: number | null): Stone[] {
+  if (!w || w.focus === 'not-now') return []
+  const finalKg = w.aim === 'number' ? w.targetKg : w.aim === 'riding' ? ridingKg : null
+  const totalLb = finalKg != null && startKg != null ? (startKg - finalKg) / KG_PER_LB : null
+  const out: Stone[] = []
+  if (w.milestoneLb > 0)
+    for (let k = 1; k <= 12; k++) {
+      const lb = k * w.milestoneLb
+      if (totalLb != null ? lb >= totalLb : lb > 20) break
+      out.push({
+        id: `lb${lb}`,
+        track: 'weight',
+        title: k === 1 ? `First ${lb} lb (7-day average)` : `${lb} lb down`,
+        hint: WEIGHT_HINTS[Math.min(k - 1, WEIGHT_HINTS.length - 1)],
+        measure: (d) => ({ value: d.lostLb, target: lb, unit: 'lb' }),
+      })
+    }
+  if (w.aim === 'number' && w.targetKg != null) {
+    const target = w.targetKg
+    out.push({
+      id: 'goalweight',
+      track: 'weight',
+      title: `Reach ${Math.round(target / KG_PER_LB)} lb, your goal`,
+      hint: 'Your own number. No deadline.',
+      measure: (d) => ({ value: d.lostLb, target: d.startKg != null ? Math.max(0.1, (d.startKg - target) / KG_PER_LB) : 1, unit: 'lb' }),
+    })
+  }
+  return out
+}
 
 export function stoneProgress(s: Stone, d: Derived, marks: Set<string>): { done: boolean; pct: number; label?: string } {
   if (s.manual) return { done: marks.has(s.id), pct: marks.has(s.id) ? 1 : 0 }

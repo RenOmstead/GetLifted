@@ -10,7 +10,8 @@ import { updateSettings } from '../db/settings'
 import type { ProgramLog, Units, YellowstoneSettings } from '../db/types'
 import { addDays, dateKey, formatShortDate } from '../lib/dates'
 import { KG_PER_LB, displayToM, distanceUnit } from '../lib/units'
-import { derive, ridingStone, STONES, stoneProgress, TRACKS, type Derived, type Stone, type Track } from '../lib/ysGoals'
+import { derive, ridingStone, STONES, stoneProgress, TRACKS, weightStones, type Derived, type Stone, type Track } from '../lib/ysGoals'
+import { weightGoalLabel } from './WeightGoalsQuiz'
 import { isEasyWeek, levelState, mondayOf, PHASES, weeksUntil, type Phase } from '../lib/yellowstone'
 
 /** Stones, goals and how you're doing, from everything you've logged. */
@@ -19,9 +20,10 @@ export function useGoals(p: YellowstoneSettings) {
   const workouts = useLiveQuery(() => db.workouts.where('date').aboveOrEqual(p.startDate).toArray(), [p.startDate]) ?? []
   const weights = useLiveQuery(() => db.weights.toArray(), []) ?? []
   const marks = useLiveQuery(() => db.skillMarks.where('skillId').equals('ys').toArray(), []) ?? []
-  const ridingKg = p.riding.wanted ? (p.riding.limitLb.value - p.riding.marginLb) * KG_PER_LB : null
+  // Nothing about weight is assumed: weight goals only appear once you've answered the questions.
+  const ridingKg = p.weight && p.riding.wanted ? (p.riding.limitLb.value - p.riding.marginLb) * KG_PER_LB : null
   const d = derive({ logs, workouts, weights, startDate: p.startDate, ridingTargetKg: ridingKg, goalWalkMin: 180 })
-  const stones = ridingKg ? [...STONES, ridingStone(ridingKg)] : STONES
+  const stones = [...STONES, ...weightStones(p.weight, ridingKg, d.startKg), ...(ridingKg ? [ridingStone(ridingKg)] : [])]
   const marked = new Set(marks.map((m) => m.id.replace(/^ys:/, '')))
   const state = stones.map((s) => ({ stone: s, ...stoneProgress(s, d, marked) }))
   return { d, state, ridingKg }
@@ -31,7 +33,7 @@ type Goals = ReturnType<typeof useGoals>
 
 /* ── Your goals ────────────────────────────────────────────────────── */
 
-export function GoalCards({ p, goals }: { p: YellowstoneSettings; goals: Goals }) {
+export function GoalCards({ p, goals, onEditWeight }: { p: YellowstoneSettings; goals: Goals; onEditWeight: () => void }) {
   const { d, state, ridingKg } = goals
   const track = (t: Track) => state.filter((s) => s.stone.track === t)
   const sb = [...track('strength'), ...track('balance')]
@@ -56,9 +58,15 @@ export function GoalCards({ p, goals }: { p: YellowstoneSettings; goals: Goals }
           {sb.filter((s) => s.done).length} of {sb.length} stepping stones
         </div>
       </div>
+      <WeightCard p={p} goals={goals} onEdit={onEditWeight} />
       {ridingKg && (
         <div className="card goal">
-          <div className="goal-icon">🐴</div>
+          <div className="row-between">
+            <div className="goal-icon">🐴</div>
+            <button className="plain tiny" style={{ color: 'var(--link)' }} onClick={onEditWeight}>
+              Edit
+            </button>
+          </div>
           <div className="goal-title">Riding weight</div>
           <div className="small text-2">
             Under {Math.round(ridingKg / KG_PER_LB)} lb, no deadline <span className={`fact-pill ${p.riding.limitLb.confirmed ? 'yes' : ''}`}>{p.riding.limitLb.confirmed ? 'confirmed' : 'assumption'}</span>
@@ -67,6 +75,58 @@ export function GoalCards({ p, goals }: { p: YellowstoneSettings; goals: Goals }
           <div className="tiny muted">{d.nowKg != null ? `${Math.round(d.lostLb)} lb down · ${Math.max(0, Math.round((d.nowKg - ridingKg) / KG_PER_LB))} lb to go` : 'Add a weigh-in to start'}</div>
         </div>
       )}
+    </div>
+  )
+}
+
+/** Your weight goal, in your own words: asked, never assumed. */
+function WeightCard({ p, goals, onEdit }: { p: YellowstoneSettings; goals: Goals; onEdit: () => void }) {
+  const w = p.weight
+  const { d } = goals
+  if (!w)
+    return (
+      <div className="card goal tint-butter">
+        <div className="goal-icon">⚖</div>
+        <div className="goal-title">Weight goals</div>
+        <div className="small text-2">Not set yet. Tell the app what you want, if anything.</div>
+        <button className="btn sm primary" onClick={onEdit}>
+          Set my weight goals
+        </button>
+      </div>
+    )
+  if (w.aim === 'riding' && w.focus !== 'not-now' && p.riding.wanted) return null
+  const label = weightGoalLabel(w, p.riding.wanted ? p.riding.limitLb.value - p.riding.marginLb : null, 'imperial')
+  const toGoLb = w.aim === 'number' && w.targetKg != null && d.nowKg != null ? Math.max(0, (d.nowKg - w.targetKg) / KG_PER_LB) : null
+  const nextStone = goals.state.find((s) => s.stone.track === 'weight' && !s.done && s.stone.id.startsWith('lb'))
+  return (
+    <div className="card goal">
+      <div className="row-between">
+        <div className="goal-icon">⚖</div>
+        <button className="plain tiny" style={{ color: 'var(--link)' }} onClick={onEdit}>
+          Edit
+        </button>
+      </div>
+      <div className="goal-title">Weight</div>
+      <div className="small text-2">{label}</div>
+      {w.focus !== 'not-now' && (
+        <>
+          {toGoLb != null ? (
+            <Meter value={d.lostLb} max={Math.max(1, d.lostLb + toGoLb)} tone={toGoLb === 0 ? 'good' : undefined} />
+          ) : nextStone ? (
+            <Meter value={nextStone.pct} max={1} />
+          ) : null}
+          <div className="tiny muted">
+            {d.nowKg == null
+              ? w.weighIns === 'rarely'
+                ? 'Weigh in whenever you like. Other wins count too.'
+                : 'Add a weigh-in to start'
+              : toGoLb != null
+                ? `${Math.round(d.lostLb)} lb down · ${Math.round(toGoLb)} lb to go`
+                : `${Math.round(d.lostLb)} lb down (7-day average)`}
+          </div>
+        </>
+      )}
+      {w.why && <div className="tiny handwritten" style={{ color: 'var(--berry)' }}>“{w.why}”</div>}
     </div>
   )
 }
