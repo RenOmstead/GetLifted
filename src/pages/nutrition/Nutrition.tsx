@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Decor } from '../../components/Decor'
 import { Icon } from '../../components/Icon'
@@ -15,7 +15,12 @@ import { evaluateIntake, formatAmount, STATUS_TEXT, supplementTotals, type Nutri
 import { mealTotals } from '../../lib/nutrition'
 import { fmt, mlToDisplay, volumeUnit, displayToMl } from '../../lib/units'
 import Fasting from '../Fasting'
-import { AddFoodSheet, MEAL_LABELS } from './AddFoodSheet'
+import { AddFoodSheet, extraNutrients, MEAL_LABELS } from './AddFoodSheet'
+import { FuelCard } from './FuelCard'
+import { NutrientChecks } from './NutrientChecks'
+import { WeekTab } from './WeekTab'
+
+const RecipesTab = lazy(() => import('./RecipesTab'))
 
 const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack']
 
@@ -38,30 +43,42 @@ export function DayNav({ date, onChange }: { date: string; onChange: (d: string)
 
 export default function Nutrition() {
   const [params, setParams] = useSearchParams()
-  const tab = (['vitamins', 'fasting'] as const).find((t) => t === params.get('tab')) ?? 'meals'
+  const tab = (['week', 'recipes', 'vitamins', 'fasting'] as const).find((t) => t === params.get('tab')) ?? 'meals'
   const [date, setDate] = useState(dateKey())
   return (
     <div className="page">
       <div className="page-header">
         <div className="grow">
           <h1>Nourish</h1>
-          <div className="subtitle">Meals, vitamins and fasting</div>
+          <div className="subtitle">Meals, recipes, vitamins and fasting</div>
         </div>
         <Decor name="sage_mug" className="decor-header" />
       </div>
-      <div className="segmented">
-        <button className={tab === 'meals' ? 'active' : ''} onClick={() => setParams({}, { replace: true })}>
-          Meals
-        </button>
-        <button className={tab === 'vitamins' ? 'active' : ''} onClick={() => setParams({ tab: 'vitamins' }, { replace: true })}>
-          Vitamins
-        </button>
-        <button className={tab === 'fasting' ? 'active' : ''} onClick={() => setParams({ tab: 'fasting' }, { replace: true })}>
-          Fasting
-        </button>
+      <div className="segmented five">
+        {(
+          [
+            ['meals', 'Meals'],
+            ['week', 'Week'],
+            ['recipes', 'Recipes'],
+            ['vitamins', 'Vitamins'],
+            ['fasting', 'Fasting'],
+          ] as const
+        ).map(([id, label]) => (
+          <button key={id} className={tab === id ? 'active' : ''} onClick={() => setParams(id === 'meals' ? {} : { tab: id }, { replace: true })}>
+            {label}
+          </button>
+        ))}
       </div>
-      {tab !== 'fasting' && <DayNav date={date} onChange={setDate} />}
-      {tab === 'meals' ? <MealsTab date={date} /> : tab === 'vitamins' ? <VitaminsTab date={date} /> : <Fasting />}
+      {tab !== 'fasting' && tab !== 'recipes' && <DayNav date={date} onChange={setDate} />}
+      {tab === 'meals' && <MealsTab date={date} />}
+      {tab === 'week' && <WeekTab date={date} />}
+      {tab === 'recipes' && (
+        <Suspense fallback={<p className="small muted">Loading recipes…</p>}>
+          <RecipesTab />
+        </Suspense>
+      )}
+      {tab === 'vitamins' && <VitaminsTab date={date} />}
+      {tab === 'fasting' && <Fasting />}
     </div>
   )
 }
@@ -108,6 +125,8 @@ function MealsTab({ date }: { date: string }) {
           </div>
         </div>
       </div>
+
+      <NutrientChecks totals={t} calorieGoal={settings.calorieGoal} isToday={date === dateKey()} />
 
       <div className="card stack-sm tint-sky">
         <div className="row-between">
@@ -167,6 +186,8 @@ function MealsTab({ date }: { date: string }) {
         )
       })}
 
+      <FuelCard date={date} />
+
       <AddFoodSheet open={adding != null} onClose={() => setAdding(null)} date={date} meal={adding ?? 'snack'} />
       <EditMealSheet entry={editing} onClose={() => setEditing(null)} />
     </>
@@ -194,6 +215,7 @@ function EditMealSheet({ entry, onClose }: { entry: MealEntry | null; onClose: (
           <p className="small muted">
             {Math.round(entry.food.kcal * value)} kcal · P {fmt(entry.food.protein * value)} g · C {fmt(entry.food.carbs * value)} g · F {fmt(entry.food.fat * value)} g
           </p>
+          {extraNutrients(entry.food, value) && <p className="tiny muted">{extraNutrients(entry.food, value)}</p>}
           <div className="grid-2">
             <button
               className="btn danger"

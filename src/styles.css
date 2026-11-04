@@ -2768,3 +2768,115 @@ body:has(.timer-bar) .app {
   background: rgba(92, 55, 73, 0.08);
   box-shadow: 0 0 0 3px rgba(240, 207, 138, 0.35);
 }
+
+/* ── Nutrition: checks, macro split, week bars, recipes ─────────────── */
+
+.segmented.five button {
+  font-size: 0.8rem;
+  padding: 0 2px;
+}
+
+.check-row {
+  all: unset;
+  display: block;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.check-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.check-row .status {
+  margin-left: 4px;
+  font-size: 0.75rem;
+}
+
+/* Macro split: protein, carbs, fat (validated for color-vision deficiency on paper). */
+.split-bar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(122, 82, 50, 0.12);
+}
+
+.split-protein {
+  background: #a8456a;
+}
+
+.split-carbs {
+  background: #bf7f26;
+}
+
+.split-fat {
+  background: #3570b8;
+}
+
+.split-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.warning-text {
+  color: var(--warning-text);
+  font-weight: 700;
+}
+
+.week-bars {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.week-bars .bar {
+  fill: var(--series-1);
+}
+
+.week-bars .bar.empty {
+  fill: rgba(122, 82, 50, 0.2);
+}
+
+.week-bars .bar.active {
+  fill: #a8456a;
+}
+
+.week-bars .goal {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.week-bars text {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.week-bars .hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.cost-tag {
+  font-weight: 800;
+  color: var(--good-text);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepper .value {
+  min-width: 64px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+}

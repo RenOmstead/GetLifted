@@ -28,6 +28,8 @@ export interface Settings {
   weeklyPlan: number[][]
   /** The Yellowstone 2027 program. */
   yellowstone: YellowstoneSettings | null
+  /** Your own free api.data.gov key for USDA FoodData Central search; the shared DEMO_KEY is used without one. */
+  usdaApiKey?: string
 }
 
 /** A value you've confirmed, or an assumption until you do. */
@@ -104,6 +106,13 @@ export interface NutritionFacts {
   carbs: number
   fat: number
   fiber?: number
+  /** Total sugars, g. */
+  sugar?: number
+  /** Added sugars, g (on US labels; often missing elsewhere). */
+  addedSugar?: number
+  /** Saturated fat, g. */
+  satFat?: number
+  /** Vitamins and minerals; sodium lives here too, in mg. */
   micros?: Micros
 }
 
@@ -116,7 +125,16 @@ export interface FoodItem extends NutritionFacts {
   /** Grams in one serving, when known, so amounts can be logged by weight. */
   servingGrams: number | null
   barcode?: string
-  source: 'manual' | 'off' | 'common'
+  /**
+   * manual: typed in. off: Open Food Facts. common: built-in whole food. staple: built-in grocery
+   * staple. restaurant: built-in or saved restaurant item. usda: USDA FoodData Central. recipe: one
+   * serving of a recipe.
+   */
+  source: 'manual' | 'off' | 'common' | 'staple' | 'restaurant' | 'usda' | 'recipe'
+  /** Where you buy it, e.g. 'Aldi'. */
+  store?: string
+  /** Where the numbers come from, e.g. '2018 menu data'. */
+  sourceNote?: string
   lastUsed: number
 }
 
@@ -288,4 +306,43 @@ export interface ProgramLog {
   comfortableWalkMin?: number | null
   sitToStand30s?: number | null
   balanceSec?: number | null
+}
+
+/**
+ * A grocery item with what you paid. Built-in Aldi staples use id `aldi:<staple id>` and override
+ * the staple's starter estimate; your own items use `g:<timestamp>`.
+ */
+export interface GroceryPrice {
+  id: string
+  name: string
+  store: string
+  /** Nutrition for one serving. */
+  food: FoodSnapshot
+  packageLabel: string
+  /** Servings in one package. */
+  packageServings: number
+  /** What one package cost you, in dollars. */
+  price: number
+  updatedAt: number
+}
+
+export interface RecipeIngredient {
+  /** Price-book id ('aldi:…' or 'g:…') when the ingredient can be priced. */
+  groceryId?: string
+  /** Nutrition for one serving of the ingredient. */
+  food: FoodSnapshot
+  /** Amount, in servings of `food`. */
+  servings: number
+  note?: string
+}
+
+export interface Recipe {
+  id?: number
+  name: string
+  /** How many servings the ingredients make. */
+  servings: number
+  ingredients: RecipeIngredient[]
+  steps: string[]
+  notes?: string
+  createdAt: number
 }

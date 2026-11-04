@@ -9,6 +9,7 @@ import { db } from '../db/db'
 import { ageFromSettings, updateSettings, useSettings } from '../db/settings'
 import type { ActivityLevel, Sex, Units } from '../db/types'
 import { exportBackup, importBackup, resetAll } from '../lib/backup'
+import { KEY_SIGNUP_URL } from '../lib/fdc'
 import { formatSeconds } from '../lib/dates'
 import { ACTIVITY, suggestGoals, tdee, type GoalKind } from '../lib/nutrition'
 import { cmToDisplay, displayToCm, displayToKg, displayToMl, fmt, kgToDisplay, lengthUnit, mlToDisplay, volumeUnit, weightUnit } from '../lib/units'
@@ -157,6 +158,30 @@ export default function Settings() {
       </div>
 
       <div className="section-title">
+        <h2>Food search</h2>
+      </div>
+      <div className="card stack">
+        <label className="field">
+          <span>USDA FoodData Central API key (optional)</span>
+          <input
+            type="text"
+            autoComplete="off"
+            spellCheck={false}
+            placeholder="Leave empty to use the shared demo key"
+            defaultValue={s.usdaApiKey ?? ''}
+            onBlur={(e) => void updateSettings({ usdaApiKey: e.target.value.trim() || undefined })}
+          />
+        </label>
+        <p className="tiny muted">
+          The shared demo key allows about 30 USDA searches an hour. A free personal key allows 1,000.{' '}
+          <a href={KEY_SIGNUP_URL} target="_blank" rel="noreferrer">
+            Get a key <Icon name="external" size={12} />
+          </a>{' '}
+          (it arrives by email). The key stays on this device.
+        </p>
+      </div>
+
+      <div className="section-title">
         <h2>Workouts</h2>
       </div>
       <div className="card stack">
@@ -243,7 +268,21 @@ export default function Settings() {
           <a href="https://world.openfoodfacts.org/" target="_blank" rel="noreferrer">
             Open Food Facts
           </a>{' '}
-          (ODbL). Whole foods: USDA FoodData Central.
+          (ODbL). Whole foods, Aldi staples and food search: USDA Standard Reference and{' '}
+          <a href="https://fdc.nal.usda.gov/" target="_blank" rel="noreferrer">
+            FoodData Central
+          </a>
+          .
+        </p>
+        <p>
+          Restaurant menus: chains’ published 2018 nutrition (
+          <a href="https://github.com/rfordatascience/tidytuesday/tree/main/data/2018/2018-09-04" target="_blank" rel="noreferrer">
+            TidyTuesday fast-food dataset
+          </a>
+          ) and USDA restaurant-food lab analyses (2006–2013). Aldi prices are starter estimates until you enter your own; Aldi doesn’t publish a price feed.
+        </p>
+        <p>
+          Nutrient checks: Dietary Guidelines for Americans 2020–2025. Walking burn: ACSM metabolic equations; fueling: ACSM, Academy of Nutrition and Dietetics and Dietitians of Canada position stand (2016).
         </p>
         <p>
           Exercise photos and instructions:{' '}

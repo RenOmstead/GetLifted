@@ -4,29 +4,71 @@ import { Icon } from '../../components/Icon'
 import { NumInput } from '../../components/NumInput'
 import { Sheet } from '../../components/Sheet'
 import { COMMON_FOODS } from '../../data/commonFoods'
+import { BUILTIN_RECIPES } from '../../data/recipes'
 import { db } from '../../db/db'
 import type { FoodSnapshot, MealType } from '../../db/types'
+import { builtinToRecipe, recipeFood } from '../../lib/grocery'
 import { lookupBarcode, searchFoods } from '../../lib/off'
+import { matches } from '../../lib/restaurants'
 import { fmt } from '../../lib/units'
+import { AldiResults, FoodRow, RestaurantResults, UsdaResults } from './FoodSources'
 
 export const MEAL_LABELS: Record<MealType, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snacks' }
 
 const commonSnapshots: FoodSnapshot[] = COMMON_FOODS.map((f) => ({ ...f, source: 'common' }))
+const builtinRecipeFoods = BUILTIN_RECIPES.map((b) => recipeFood(builtinToRecipe(b)))
 
-function FoodRow({ food, onPick }: { food: FoodSnapshot; onPick: () => void }) {
-  return (
-    <button className="list-item" onClick={onPick}>
-      <div className="grow">
-        <div className="title">{food.name}</div>
-        <div className="meta truncate">
-          {food.brand ? `${food.brand} · ` : ''}
-          {food.servingLabel} · {Math.round(food.kcal)} kcal · P {fmt(food.protein, 0)} C {fmt(food.carbs, 0)} F {fmt(food.fat, 0)}
-        </div>
-      </div>
-      <Icon name="plus" className="muted" />
-    </button>
-  )
+type Source = 'all' | 'aldi' | 'restaurants' | 'usda'
+const SOURCES: [Source, string][] = [
+  ['all', 'All'],
+  ['aldi', 'Aldi'],
+  ['restaurants', 'Restaurants'],
+  ['usda', 'USDA'],
+]
+
+/** Where a food's numbers come from, shown under it before you add it. */
+function sourceText(f: FoodSnapshot): string | null {
+  switch (f.source) {
+    case 'staple':
+      return 'Aldi staple. Nutrition is USDA data for the plain food; your package may differ slightly.'
+    case 'restaurant':
+      return f.sourceNote ? `${f.brand ? `${f.brand} · ` : ''}${f.sourceNote}. Menus change, so treat it as a close estimate.` : 'Saved from the restaurant’s nutrition info.'
+    case 'usda':
+      return `${f.sourceNote ?? 'USDA FoodData Central'}.`
+    case 'off':
+      return `Open Food Facts label data${f.store === 'Aldi' ? ' · sold at Aldi' : ''}.`
+    case 'recipe':
+      return 'One serving of the recipe.'
+    case 'common':
+      return 'USDA values.'
+    default:
+      return null
+  }
 }
+
+/** Fiber, sugar, saturated fat and sodium for an amount, where the food has them. */
+export function extraNutrients(f: FoodSnapshot, k: number): string {
+  const parts: string[] = []
+  if (f.fiber != null) parts.push(`Fiber ${fmt(f.fiber * k)} g`)
+  if (f.addedSugar != null) parts.push(`Added sugars ${fmt(f.addedSugar * k)} g`)
+  else if (f.sugar != null) parts.push(`Sugars ${fmt(f.sugar * k)} g`)
+  if (f.satFat != null) parts.push(`Sat fat ${fmt(f.satFat * k)} g`)
+  if (f.micros?.sodium != null) parts.push(`Sodium ${Math.round(f.micros.sodium * k)} mg`)
+  return parts.join(' · ')
+}
+
+type QuickField = 'kcal' | 'protein' | 'carbs' | 'fat' | 'fiber' | 'sugar' | 'satFat' | 'sodium'
+const QUICK_LABELS: Record<QuickField, string> = {
+  kcal: 'Calories',
+  protein: 'Protein (g)',
+  carbs: 'Carbs (g)',
+  fat: 'Fat (g)',
+  fiber: 'Fiber (g)',
+  sugar: 'Sugars (g)',
+  satFat: 'Saturated fat (g)',
+  sodium: 'Sodium (mg)',
+}
+const emptyQuick = () => ({ name: '', brand: '', values: {} as Partial<Record<QuickField, number | null>> })
 
 declare global {
   interface Window {
@@ -86,6 +128,8 @@ interface AddFoodSheetProps {
 
 export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
   const [mode, setMode] = useState<'search' | 'quick' | 'barcode'>('search')
+  const [source, setSource] = useState<Source>('all')
+  const [restaurantForm, setRestaurantForm] = useState(false)
   const [query, setQuery] = useState('')
   const [online, setOnline] = useState<FoodSnapshot[]>([])
   const [status, setStatus] = useState<string | null>(null)
@@ -94,9 +138,10 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
   const [grams, setGrams] = useState<number | null>(null)
   const [useGrams, setUseGrams] = useState(false)
   const [barcode, setBarcode] = useState('')
-  const [quick, setQuick] = useState({ name: '', kcal: null as number | null, protein: null as number | null, carbs: null as number | null, fat: null as number | null })
+  const [quick, setQuick] = useState(emptyQuick)
 
   const myFoods = useLiveQuery(() => db.foods.orderBy('lastUsed').reverse().limit(200).toArray(), []) ?? []
+  const myRecipes = useLiveQuery(() => db.recipes.toArray(), []) ?? []
 
   useEffect(() => {
     if (!open) {
@@ -104,13 +149,16 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
       setQuery('')
       setOnline([])
       setMode('search')
+      setSource('all')
+      setRestaurantForm(false)
+      setQuick(emptyQuick())
       setStatus(null)
     }
   }, [open])
 
   // Search Open Food Facts after a short pause in typing.
   useEffect(() => {
-    if (mode !== 'search' || query.trim().length < 3) {
+    if (mode !== 'search' || source !== 'all' || query.trim().length < 3) {
       setOnline([])
       return
     }
@@ -130,11 +178,12 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
       clearTimeout(t)
       ctl.abort()
     }
-  }, [query, mode])
+  }, [query, mode, source])
 
   const q = query.trim().toLowerCase()
   const localMine = useMemo(() => (q ? myFoods.filter((f) => `${f.name} ${f.brand ?? ''}`.toLowerCase().includes(q)) : myFoods.slice(0, 12)), [myFoods, q])
   const localCommon = useMemo(() => (q ? commonSnapshots.filter((f) => f.name.toLowerCase().includes(q)) : []), [q])
+  const localRecipes = useMemo(() => (q ? [...myRecipes.map(recipeFood), ...builtinRecipeFoods].filter((f) => matches(q, f.name)) : []), [myRecipes, q])
 
   const pick = (f: FoodSnapshot) => {
     setPicked(f)
@@ -215,7 +264,9 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
               </div>
             ))}
           </div>
-          {picked.micros && Object.keys(picked.micros).length > 0 && <p className="tiny muted">Includes vitamin and mineral data, counted in your Vitamins tab.</p>}
+          {extraNutrients(picked, effectiveServings) && <p className="small text-2">{extraNutrients(picked, effectiveServings)}</p>}
+          {sourceText(picked) && <p className="tiny muted">{sourceText(picked)}</p>}
+          {picked.micros && Object.keys(picked.micros).some((k) => k !== 'sodium') && <p className="tiny muted">Includes vitamin and mineral data, counted in your Vitamins tab.</p>}
           <div className="grid-2">
             <button className="btn lg" onClick={() => setPicked(null)}>
               Back
@@ -234,7 +285,13 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
             <button className={mode === 'barcode' ? 'active' : ''} onClick={() => setMode('barcode')}>
               Barcode
             </button>
-            <button className={mode === 'quick' ? 'active' : ''} onClick={() => setMode('quick')}>
+            <button
+              className={mode === 'quick' ? 'active' : ''}
+              onClick={() => {
+                setRestaurantForm(false)
+                setMode('quick')
+              }}
+            >
               Quick add
             </button>
           </div>
@@ -243,39 +300,80 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
             <>
               <label className="search">
                 <Icon name="search" size={18} />
-                <input className="input" autoFocus placeholder="Search foods, e.g. chicken, oats, Quest bar" value={query} onChange={(e) => setQuery(e.target.value)} />
+                <input
+                  className="input"
+                  autoFocus
+                  placeholder={source === 'aldi' ? 'Search Aldi, e.g. Kirkwood chicken, Fit & Active' : source === 'restaurants' ? 'Search menus, e.g. Taco Bell bowl' : 'Search foods, e.g. chicken, oats, Quest bar'}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                />
               </label>
-              {localMine.length > 0 && (
-                <>
-                  <h3 className="small muted">{q ? 'Your foods' : 'Recent'}</h3>
-                  <div className="card flush list">
-                    {localMine.map((f) => (
-                      <FoodRow key={f.id} food={f} onPick={() => pick(f)} />
-                    ))}
-                  </div>
-                </>
+              <div className="chips" role="tablist" aria-label="Food source">
+                {SOURCES.map(([id, label]) => (
+                  <button key={id} role="tab" aria-selected={source === id} className={`chip ${source === id ? 'active' : ''}`} onClick={() => setSource(id)}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {source === 'aldi' && <AldiResults query={query} onPick={pick} />}
+              {source === 'restaurants' && (
+                <RestaurantResults
+                  query={query}
+                  onPick={pick}
+                  onSaveOwn={() => {
+                    setRestaurantForm(true)
+                    setMode('quick')
+                  }}
+                />
               )}
-              {(localCommon.length > 0 || !q) && (
+              {source === 'usda' && <UsdaResults query={query} onPick={pick} />}
+              {source === 'all' && (
                 <>
-                  <h3 className="small muted">Common foods</h3>
-                  <div className="card flush list">
-                    {(q ? localCommon : commonSnapshots.slice(0, 8)).map((f) => (
-                      <FoodRow key={f.name} food={f} onPick={() => pick(f)} />
-                    ))}
-                  </div>
-                </>
-              )}
-              {q.length >= 3 && (
-                <>
-                  <h3 className="small muted">Packaged foods (Open Food Facts)</h3>
-                  {status && <p className="small muted">{status}</p>}
-                  {online.length > 0 && (
-                    <div className="card flush list">
-                      {online.map((f, i) => (
-                        <FoodRow key={`${f.barcode}-${i}`} food={f} onPick={() => pick(f)} />
-                      ))}
-                    </div>
+                  {localMine.length > 0 && (
+                    <>
+                      <h3 className="small muted">{q ? 'Your foods' : 'Recent'}</h3>
+                      <div className="card flush list">
+                        {localMine.map((f) => (
+                          <FoodRow key={f.id} food={f} onPick={() => pick(f)} />
+                        ))}
+                      </div>
+                    </>
                   )}
+                  {localRecipes.length > 0 && (
+                    <>
+                      <h3 className="small muted">Recipes (1 serving)</h3>
+                      <div className="card flush list">
+                        {localRecipes.slice(0, 6).map((f) => (
+                          <FoodRow key={f.name} food={f} onPick={() => pick(f)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {(localCommon.length > 0 || !q) && (
+                    <>
+                      <h3 className="small muted">Common foods</h3>
+                      <div className="card flush list">
+                        {(q ? localCommon : commonSnapshots.slice(0, 8)).map((f) => (
+                          <FoodRow key={f.name} food={f} onPick={() => pick(f)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {q.length >= 3 && (
+                    <>
+                      <h3 className="small muted">Packaged foods (Open Food Facts)</h3>
+                      {status && <p className="small muted">{status}</p>}
+                      {online.length > 0 && (
+                        <div className="card flush list">
+                          {online.map((f, i) => (
+                            <FoodRow key={`${f.barcode}-${i}`} food={f} onPick={() => pick(f)} />
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {!q && <p className="tiny muted">Shop at Aldi or eating out? Tap Aldi or Restaurants above. USDA searches the government food database.</p>}
                 </>
               )}
             </>
@@ -296,38 +394,64 @@ export function AddFoodSheet({ open, onClose, date, meal }: AddFoodSheetProps) {
 
           {mode === 'quick' && (
             <div className="stack">
+              {restaurantForm && <p className="small muted">Copy the totals from the restaurant’s nutrition page or calculator. It’s saved to your restaurant foods so next time it’s one tap.</p>}
               <label className="field">
-                <span>Name</span>
-                <input value={quick.name} placeholder="e.g. Restaurant burrito" onChange={(e) => setQuick({ ...quick, name: e.target.value })} />
+                <span>{restaurantForm ? 'Restaurant' : 'Restaurant or brand (optional)'}</span>
+                <input value={quick.brand} placeholder={restaurantForm ? 'e.g. Chipotle' : 'e.g. Chipotle, Aldi'} onChange={(e) => setQuick({ ...quick, brand: e.target.value })} />
+              </label>
+              <label className="field">
+                <span>{restaurantForm ? 'What you ordered' : 'Name'}</span>
+                <input value={quick.name} placeholder={restaurantForm ? 'e.g. Chicken burrito bowl' : 'e.g. Restaurant burrito'} onChange={(e) => setQuick({ ...quick, name: e.target.value })} />
               </label>
               <div className="grid-2">
                 {(['kcal', 'protein', 'carbs', 'fat'] as const).map((k) => (
                   <label className="field" key={k}>
-                    <span>{k === 'kcal' ? 'Calories' : `${k[0].toUpperCase()}${k.slice(1)} (g)`}</span>
-                    <NumInput value={quick[k]} onChange={(v) => setQuick({ ...quick, [k]: v })} />
+                    <span>{QUICK_LABELS[k]}</span>
+                    <NumInput value={quick.values[k]} onChange={(v) => setQuick({ ...quick, values: { ...quick.values, [k]: v } })} />
                   </label>
                 ))}
               </div>
+              <details open={restaurantForm}>
+                <summary className="small muted">Fiber, sugar, saturated fat and sodium (optional)</summary>
+                <div className="grid-2" style={{ marginTop: 8 }}>
+                  {(['fiber', 'sugar', 'satFat', 'sodium'] as const).map((k) => (
+                    <label className="field" key={k}>
+                      <span>{QUICK_LABELS[k]}</span>
+                      <NumInput value={quick.values[k]} onChange={(v) => setQuick({ ...quick, values: { ...quick.values, [k]: v } })} />
+                    </label>
+                  ))}
+                </div>
+              </details>
               <button
                 className="btn primary lg"
-                disabled={!quick.kcal}
-                onClick={() =>
+                disabled={!quick.values.kcal || (restaurantForm && !quick.brand.trim())}
+                onClick={() => {
+                  const v = quick.values
+                  const brand = quick.brand.trim()
+                  const isRestaurant = restaurantForm
                   void add(
                     {
-                      name: quick.name.trim() || 'Quick add',
+                      name: quick.name.trim() || (isRestaurant ? `${brand} meal` : 'Quick add'),
+                      ...(brand ? { brand } : {}),
                       servingLabel: '1 serving',
                       servingGrams: null,
-                      kcal: quick.kcal ?? 0,
-                      protein: quick.protein ?? 0,
-                      carbs: quick.carbs ?? 0,
-                      fat: quick.fat ?? 0,
-                      source: 'manual',
+                      kcal: v.kcal ?? 0,
+                      protein: v.protein ?? 0,
+                      carbs: v.carbs ?? 0,
+                      fat: v.fat ?? 0,
+                      ...(v.fiber != null ? { fiber: v.fiber } : {}),
+                      ...(v.sugar != null ? { sugar: v.sugar } : {}),
+                      ...(v.satFat != null ? { satFat: v.satFat } : {}),
+                      micros: v.sodium != null ? { sodium: v.sodium } : {},
+                      source: isRestaurant ? 'restaurant' : 'manual',
+                      ...(isRestaurant ? { sourceNote: 'From the restaurant’s nutrition info' } : {}),
+                      ...(/^aldi$/i.test(brand) ? { store: 'Aldi' } : {}),
                     },
                     1,
                   )
-                }
+                }}
               >
-                Add
+                {restaurantForm ? 'Save and add' : 'Add'}
               </button>
             </div>
           )}
