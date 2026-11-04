@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { EXERCISES } from '../data/exercises'
-import { FIGURES } from '../figures/poses'
+import { hasFigure } from '../figures/Figure'
 import { ART } from './art'
 
 describe('exercise visuals', () => {
   it('gives every exercise a picture, figure or photo', () => {
-    const missing = EXERCISES.filter((e) => !ART[e.id] && !e.fedb && !(e.figure && FIGURES[e.figure]))
+    const missing = EXERCISES.filter((e) => !ART[e.id] && !e.fedb && !hasFigure(e.figure))
     expect(missing.map((e) => e.id)).toEqual([])
   })
 

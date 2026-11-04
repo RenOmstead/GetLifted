@@ -78,6 +78,8 @@
   --fig-far: #c2a888;
   --fig-prop: #9c7d5c;
   --fig-floor: #dcc6a0;
+  --fig-palm: #8e5d6c;
+  --fig-gap: #f7ead3;
 
   --plum-grad: linear-gradient(180deg, #74485c, #5a3448);
   --brass-grad: linear-gradient(180deg, #f1d9ad, #d6ac72);
@@ -2879,4 +2881,26 @@ body:has(.timer-bar) .app {
   text-align: center;
   font-size: 1.4rem;
   font-weight: 800;
+}
+
+/* Close-up figures: hands and feet. */
+.figure .fig-skin {
+  fill: var(--fig-body);
+}
+
+.figure .fig-skin-edge {
+  stroke: var(--fig-body);
+}
+
+.figure .fig-palm {
+  fill: var(--fig-palm);
+}
+
+.figure .fig-palm.fig-skin-edge,
+.figure .fig-palm-stroke {
+  stroke: var(--fig-palm);
+}
+
+.figure .fig-outline {
+  stroke: var(--fig-gap);
 }

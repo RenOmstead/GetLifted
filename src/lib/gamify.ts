@@ -3,6 +3,7 @@ import { SKILLS } from '../data/skills'
 import { STARTER_ROUTINES } from '../data/starterRoutines'
 import type { ChallengeJoin, RoutineEntry, Fast, MealEntry, Settings, SkillMark, WaterLog, WeightEntry, Workout } from '../db/types'
 import { addDays, dateKey, formatSeconds, parseDateKey } from './dates'
+import { hitsArea, type TargetArea } from './areas'
 import type { ExerciseInfo } from './exercises'
 import { fastHours } from './fasting'
 import { mealTotals } from './nutrition'
@@ -79,13 +80,17 @@ export function totalXp({ workouts, fasts, marks, joins, get }: XpInput, today =
 
 /* ── Challenges ───────────────────────────────────────────────────── */
 
-/** Seconds of mobility or stretching work in a set of workouts (reps sets count 30 s each). */
-export function mobilitySeconds(ws: Workout[], get: GetExercise): number {
+/**
+ * Seconds of mobility or stretching work in a set of workouts (reps sets count 30 s each).
+ * With an area, any exercise for that area counts (e.g. tibialis raises for feet and ankles).
+ */
+export function mobilitySeconds(ws: Workout[], get: GetExercise, area?: TargetArea): number {
   let sec = 0
   for (const w of finished(ws))
     for (const e of w.entries) {
       const ex = get(e.exerciseId)
-      if (!ex || (ex.category !== 'mobility' && ex.category !== 'flexibility')) continue
+      if (!ex) continue
+      if (area ? !hitsArea(ex.muscles, area) : ex.category !== 'mobility' && ex.category !== 'flexibility') continue
       for (const s of e.sets) if (s.done) sec += ex.track === 'hold' ? (s.durationSec ?? 0) : 30
     }
   return sec
@@ -93,7 +98,7 @@ export function mobilitySeconds(ws: Workout[], get: GetExercise): number {
 
 /** What you did toward a challenge on one day: total reps, longest hold, or mobility minutes. */
 export function dayValue(def: ChallengeDef, ws: Workout[], get: GetExercise): number {
-  if (def.kind === 'mobility') return mobilitySeconds(ws, get) / 60
+  if (def.kind === 'mobility') return mobilitySeconds(ws, get, def.area) / 60
   const sets = finished(ws)
     .flatMap(doneSets)
     .filter((s) => s.exerciseId === def.exerciseId)
@@ -139,6 +144,13 @@ export function challengeStatus(def: ChallengeDef, join: ChallengeJoin, workouts
 /** What "Do today's" adds to your workout for a challenge day. */
 export function challengeEntries(def: ChallengeDef, target: number): RoutineEntry[] {
   if (def.kind === 'mobility') {
+    const own = def.routine ? STARTER_ROUTINES.find((r) => r.name === def.routine) : undefined
+    if (own) {
+      // Repeat the routine's sets until they add up to the day's minutes.
+      const sec = own.entries.reduce((n, e) => n + e.sets * (e.durationSec ?? 30), 0)
+      const k = Math.max(1, Math.ceil((target * 60) / Math.max(1, sec)))
+      return own.entries.map((e) => ({ ...e, sets: e.sets * k }))
+    }
     const [joint, flex] = STARTER_ROUTINES
     const entries = [...joint.entries]
     if (target > 5.5) entries.push(...flex.entries.map((e) => ({ ...e, sets: target > 11 ? 2 : 1 })))
@@ -150,7 +162,7 @@ export function challengeEntries(def: ChallengeDef, target: number): RoutineEntr
 }
 
 export function dayText(def: ChallengeDef, target: number) {
-  return def.kind === 'hold' ? `hold for ${formatSeconds(target)}` : def.kind === 'mobility' ? `${target} minutes of mobility` : `${target} reps in total`
+  return def.kind === 'hold' ? `hold for ${formatSeconds(target)}` : def.kind === 'mobility' ? `${target} minutes of ${def.area ? `${def.area.toLowerCase()} work` : 'mobility'}` : `${target} reps in total`
 }
 
 /* ── Quests ───────────────────────────────────────────────────────── */

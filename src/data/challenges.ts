@@ -1,3 +1,4 @@
+import type { TargetArea } from '../lib/areas'
 /**
  * Multi-day challenges you can join. Each day has a target; rest days are
  * built in so the ramp stays kind to your joints.
@@ -24,6 +25,9 @@ export interface ChallengeDef {
   /** What it trains, for filtering. */
   tag: ChallengeTag
   exerciseId?: string
+  /** Mobility challenges: only work on this area counts, and "Do today's" starts this starter routine. */
+  area?: TargetArea
+  routine?: string
   days: ChallengeDay[]
 }
 
@@ -255,6 +259,28 @@ export const CHALLENGES: ChallengeDef[] = [
     tag: 'Mobility',
     kind: 'mobility',
     days: ramp(14, 10, 15, 'minutes', 1),
+  },
+  {
+    id: 'wrist-ready-21',
+    name: '21-Day Wrist Ready',
+    blurb: 'Wrist and hand work every day, from 5 to 10 minutes. Comfortable wrists for push-ups, planks and handstands.',
+    decor: 'pink_lamp',
+    tag: 'Mobility',
+    kind: 'mobility',
+    area: 'Wrists & hands',
+    routine: 'Wrist Prep',
+    days: ramp(21, 5, 10, 'minutes', 1),
+  },
+  {
+    id: 'happy-feet-14',
+    name: '14-Day Happy Feet',
+    blurb: 'Foot and ankle work every day, 5 to 10 minutes. Stronger arches, toes and ankles for long walks and trails.',
+    decor: 'sage_mug',
+    tag: 'Mobility',
+    kind: 'mobility',
+    area: 'Feet & ankles',
+    routine: 'Happy Feet',
+    days: ramp(14, 5, 10, 'minutes', 1),
   },
 ]
 

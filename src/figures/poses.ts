@@ -400,6 +400,13 @@ export const FIGURES: Record<string, FigureDef> = {
       { at: [94, 152], torso: -15, head: -5, bend: -6, leg: [27, 27], leg2: [85, 180], reach: [150, 189], toe: -60, toe2: 175 },
     ],
   },
+  'kneeling-shin-stretch': {
+    hold: true,
+    poses: [
+      { at: [150, 184], anchor: 'knee', torso: -90, leg: [90, 180], arm: [92, 92], toe: 180 },
+      { at: [150, 184], anchor: 'knee', torso: -86, head: -88, leg: [22, 180], arm: [70, 12], toe: 180 },
+    ],
+  },
   'couch-stretch': {
     props: [{ t: 'wall', x: 50 }],
     hold: true,

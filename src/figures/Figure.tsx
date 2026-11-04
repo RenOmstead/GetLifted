@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { lerpCloseup, type CloseupDef } from './closeup'
+import { CLOSEUPS } from './closeupPoses'
+import { closeupBounds, CloseupProps, CloseupShape } from './CloseupShape'
 import { FIGURES } from './poses'
 import { buildSkeleton, FLOOR_Y, LEN, lerpPose, type FigureDef, type Pose, type Prop, type Pt } from './skeleton'
 
@@ -9,7 +12,7 @@ const HOLD_MS = 2600
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
 /** Pose at time `ms` in the figure's loop: each keyframe dwells, then moves to the next. */
-function poseAt(def: FigureDef, ms: number): Pose {
+function poseAt<T>(def: { poses: T[]; hold?: boolean }, ms: number, lerp: (a: T, b: T, t: number) => T): T {
   const poses = def.poses
   if (poses.length === 1) return poses[0]
   const dwell = (i: number) => (def.hold && i === poses.length - 1 ? HOLD_MS : DWELL_MS)
@@ -18,7 +21,7 @@ function poseAt(def: FigureDef, ms: number): Pose {
   for (let i = 0; i < poses.length; i++) {
     if (t < dwell(i)) return poses[i]
     t -= dwell(i)
-    if (t < MOVE_MS) return lerpPose(poses[i], poses[(i + 1) % poses.length], ease(t / MOVE_MS))
+    if (t < MOVE_MS) return lerp(poses[i], poses[(i + 1) % poses.length], ease(t / MOVE_MS))
     t -= MOVE_MS
   }
   return poses[0]
@@ -160,7 +163,17 @@ function figureBounds(def: FigureDef, only?: number): Box {
 }
 
 export function hasFigure(id: string | undefined): boolean {
-  return !!id && id in FIGURES
+  return !!id && (id in FIGURES || id in CLOSEUPS)
+}
+
+/** Note shown under a figure, e.g. "Front view". */
+export function figureCaption(id: string | undefined): string | undefined {
+  return id ? (FIGURES[id]?.caption ?? CLOSEUPS[id]?.caption) : undefined
+}
+
+/** Every figure id with its number of keyframes, for the gallery. */
+export function allFigures(): [string, number][] {
+  return [...Object.entries(FIGURES), ...Object.entries(CLOSEUPS)].map(([id, d]) => [id, d.poses.length])
 }
 
 interface FigureProps {
@@ -175,7 +188,7 @@ interface FigureProps {
 
 /** An exercise demonstrated by an animated stick figure. */
 export function Figure({ id, animate = true, poseIndex, className, title }: FigureProps) {
-  const def = FIGURES[id]
+  const def: FigureDef | CloseupDef | undefined = FIGURES[id] ?? CLOSEUPS[id]
   const reduced = usePrefersReducedMotion()
   const ref = useRef<SVGSVGElement>(null)
   const [visible, setVisible] = useState(false)
@@ -206,11 +219,31 @@ export function Figure({ id, animate = true, poseIndex, className, title }: Figu
   }, [running])
 
   if (!def) return null
-  const pose = running ? poseAt(def, now) : def.poses[poseIndex != null ? Math.min(poseIndex, def.poses.length - 1) : def.poses.length - 1]
-
   const shownIndex = poseIndex != null ? Math.min(poseIndex, def.poses.length - 1) : def.poses.length - 1
   const animated = animate && !reduced && poseIndex == null && def.poses.length > 1
-  const box = figureBounds(def, animated ? undefined : shownIndex)
+
+  if (id in CLOSEUPS) {
+    const close = CLOSEUPS[id]
+    const pose = running ? poseAt(close, now, lerpCloseup) : close.poses[shownIndex]
+    const box = closeupBounds(close, animated ? undefined : shownIndex)
+    return (
+      <svg
+        ref={ref}
+        viewBox={`${box.x.toFixed(1)} ${box.y.toFixed(1)} ${box.w.toFixed(1)} ${box.h.toFixed(1)}`}
+        className={`figure closeup ${className ?? ''}`}
+        role="img"
+        aria-label={title ?? 'Exercise demonstration'}
+      >
+        <CloseupProps props={close.props ?? []} box={box} front={false} />
+        <CloseupShape pose={pose} />
+        <CloseupProps props={close.props ?? []} box={box} front />
+      </svg>
+    )
+  }
+
+  const body = def as FigureDef
+  const pose = running ? poseAt(body, now, lerpPose) : body.poses[shownIndex]
+  const box = figureBounds(body, animated ? undefined : shownIndex)
   return (
     <svg
       ref={ref}
@@ -219,10 +252,10 @@ export function Figure({ id, animate = true, poseIndex, className, title }: Figu
       role="img"
       aria-label={title ?? 'Exercise demonstration'}
     >
-      {!def.noFloor && <path d={line([box.x, FLOOR_Y + 3], [box.x + box.w, FLOOR_Y + 3])} className="fig-floor" strokeWidth={2} />}
-      {def.props?.filter((p) => p.t !== 'bar').map((p, i) => <PropShape key={i} p={p} />)}
-      <Body pose={pose} def={def} />
-      {def.props?.filter((p) => p.t === 'bar').map((p, i) => <PropShape key={`bar${i}`} p={p} />)}
+      {!body.noFloor && <path d={line([box.x, FLOOR_Y + 3], [box.x + box.w, FLOOR_Y + 3])} className="fig-floor" strokeWidth={2} />}
+      {body.props?.filter((p) => p.t !== 'bar').map((p, i) => <PropShape key={i} p={p} />)}
+      <Body pose={pose} def={body} />
+      {body.props?.filter((p) => p.t === 'bar').map((p, i) => <PropShape key={`bar${i}`} p={p} />)}
     </svg>
   )
 }
