@@ -174,7 +174,7 @@ export const EXERCISES: ExerciseDef[] = [
     ],
     cues: ['Use a soft mat or folded towel under your knuckles', 'Kind to sore wrists because they stay straight'],
   }),
-  cal('fingertip-pushup', 'Fingertip Push-Up', 'reps', ['chest', 'triceps', 'forearms'], {
+  cal('fingertip-pushup', 'Fingertip Push-Up', 'reps', ['hands', 'chest', 'triceps', 'forearms'], {
     equipment: BODY,
     figure: 'pushup',
     steps: [
@@ -814,7 +814,7 @@ export const EXERCISES: ExerciseDef[] = [
     ],
     cues: ['Stand on a step to let your heels drop lower', 'Slow on the way down'],
   }),
-  cal('single-leg-calf-raise', 'Single-Leg Calf Raise', 'reps', ['calves'], {
+  cal('single-leg-calf-raise', 'Single-Leg Calf Raise', 'reps', ['calves', 'ankles'], {
     equipment: BODY,
     figure: 'single-leg-calf-raise',
     perSide: true,
@@ -879,7 +879,7 @@ export const EXERCISES: ExerciseDef[] = [
     ],
     cues: ['Trains the control you need going downhill', 'Keep your knee in line with your toes'],
   }),
-  cal('single-leg-balance', 'Single-Leg Balance', 'hold', ['calves', 'glutes', 'abdominals'], {
+  cal('single-leg-balance', 'Single-Leg Balance', 'hold', ['ankles', 'calves', 'glutes', 'abdominals'], {
     equipment: BODY,
     perSide: true,
     figure: 'single-leg-balance',
@@ -1955,8 +1955,8 @@ export const EXERCISES: ExerciseDef[] = [
   mob('band-pull-apart', 'Band Pull-Apart', 'reps', ['shoulders', 'middle back'], { equipment: 'resistance band', fedb: 'Band_Pull_Apart' }),
   mob('band-external-rotation', 'Band External Rotation', 'reps', ['shoulders'], { equipment: 'resistance band', perSide: true, fedb: 'External_Rotation_with_Band' }),
   mob('elbow-circles', 'Elbow Circles', 'reps', ['forearms'], { equipment: BODY, fedb: 'Elbow_Circles' }),
-  mob('wrist-circles', 'Wrist Circles', 'reps', ['forearms'], { equipment: BODY, fedb: 'Wrist_Circles' }),
-  mob('wrist-prep', 'Wrist Prep Rocks', 'reps', ['forearms'], {
+  mob('wrist-circles', 'Wrist Circles', 'reps', ['wrists', 'forearms'], { equipment: BODY, fedb: 'Wrist_Circles' }),
+  mob('wrist-prep', 'Wrist Prep Rocks', 'reps', ['wrists', 'forearms'], {
     equipment: BODY,
     figure: 'wrist-prep',
     steps: [
@@ -2029,8 +2029,8 @@ export const EXERCISES: ExerciseDef[] = [
     cues: ['Hold onto something in front of you if you tip backward', 'Put small plates under your heels while you build ankle mobility'],
   }),
   mob('knee-circles', 'Knee Circles', 'reps', ['quadriceps', 'hamstrings'], { equipment: BODY, fedb: 'Knee_Circles' }),
-  mob('ankle-circles', 'Ankle Circles', 'reps', ['calves'], { equipment: BODY, perSide: true, fedb: 'Ankle_Circles' }),
-  mob('knee-to-wall', 'Knee-to-Wall Ankle Mobility', 'reps', ['calves'], {
+  mob('ankle-circles', 'Ankle Circles', 'reps', ['ankles', 'calves'], { equipment: BODY, perSide: true, fedb: 'Ankle_Circles' }),
+  mob('knee-to-wall', 'Knee-to-Wall Ankle Mobility', 'reps', ['ankles', 'calves'], {
     equipment: 'wall',
     perSide: true,
     figure: 'knee-to-wall',
@@ -2052,7 +2052,7 @@ export const EXERCISES: ExerciseDef[] = [
     cues: ['Start with no weight or very light weight', 'Go slowly, 3–5 seconds each way'],
   }),
 
-  mob('foot-roll', 'Foot Roll', 'reps', ['calves'], {
+  mob('foot-roll', 'Foot Roll', 'reps', ['feet', 'calves'], {
     equipment: 'ball or water bottle',
     perSide: true,
     fedb: 'Foot-SMR',
@@ -2073,6 +2073,267 @@ export const EXERCISES: ExerciseDef[] = [
       'Follow your hand with your eyes, then bring it back down. Do all reps, then switch sides.',
     ],
     cues: ['Turn through your upper back, not your hips', 'Breathe out as you rotate'],
+  }),
+
+  // ── Mobility: wrists and hands ─────────────────────────────────────
+  mob('wrist-flex-ext', 'Wrist Flexion and Extension', 'reps', ['wrists', 'forearms'], {
+    equipment: 'table',
+    figure: 'wrist-flex-ext',
+    steps: [
+      'Rest your forearm on a table with your hand hanging past the edge, palm down.',
+      'Slowly bend your hand down as far as is comfortable, then lift it up as far as is comfortable.',
+      'Keep your forearm still on the table the whole time. Do both hands.',
+    ],
+    cues: ['Slow and smooth, about 2 seconds each way', 'A great warm-up before push-ups'],
+  }),
+  mob('wrist-cars', 'Wrist CARs (Slow Circles)', 'reps', ['wrists', 'forearms'], {
+    equipment: BODY,
+    figure: 'wrist-cars',
+    steps: [
+      'Make a loose fist and hold your forearm still with your other hand.',
+      'Draw the biggest, slowest circle you can with your fist: down, out to the side, up and back in.',
+      'Take about 5 seconds per circle. Do the reps one way, then the other way.',
+    ],
+    cues: ['Only the wrist moves, the forearm stays still', 'Reach the edges of your range without forcing them'],
+  }),
+  mob('palm-flips', 'Palm Flips (Forearm Rotation)', 'reps', ['forearms', 'wrists'], {
+    equipment: BODY,
+    figure: 'palm-flips',
+    steps: [
+      'Stand with your elbows tucked against your sides, bent to 90°.',
+      'Turn your palms all the way up, then all the way down.',
+      'Keep your elbows pinned to your sides so the turn comes from the forearm.',
+    ],
+    cues: ['Hold a hammer or light dumbbell by the end to make it harder'],
+  }),
+  mob('wrist-side-bends', 'Wrist Side Bends', 'reps', ['wrists', 'forearms'], {
+    equipment: BODY,
+    figure: 'wrist-side-bends',
+    steps: [
+      'Hold your forearm upright, palm facing forward, fingers together.',
+      'Tip your hand toward your thumb side, then toward your little-finger side.',
+      'Keep your forearm still and the movement small and smooth.',
+    ],
+    cues: ['Helps wrists that ache in handstands and planks'],
+  }),
+  mob('tendon-glides', 'Tendon Glides', 'reps', ['hands', 'forearms'], {
+    equipment: BODY,
+    figure: 'tendon-glides',
+    steps: [
+      'Hold your hand up, fingers straight and together.',
+      'Make a hook: bend just the top two finger joints, knuckles straight.',
+      'Straighten, then make a full fist. Straighten, then a tabletop: bend only at the big knuckles with fingers straight.',
+      'Straighten again. That’s one rep; hold each shape for 2–3 seconds.',
+    ],
+    cues: ['Gentle, never forced', 'Good for stiff hands after typing or gripping'],
+  }),
+  mob('fist-to-spread', 'Fist to Finger Spread', 'reps', ['hands', 'forearms'], {
+    equipment: BODY,
+    figure: 'fist-to-spread',
+    steps: ['Make a firm fist with your thumb outside your fingers.', 'Open your hand and spread your fingers as wide as you can.', 'Hold the spread for a second, then close again.'],
+    cues: ['Balances out all the gripping from pull-ups and rows'],
+  }),
+  mob('band-finger-extension', 'Banded Finger Extensions', 'reps', ['hands', 'forearms'], {
+    equipment: 'rubber band',
+    figure: 'band-finger-extension',
+    steps: [
+      'Loop a rubber band around your fingers and thumb, just past the middle knuckles.',
+      'Spread your fingers apart against the band as far as you can.',
+      'Slowly let them come back together.',
+    ],
+    cues: ['Use two bands for more resistance', 'Strengthens the muscles that open the hand'],
+  }),
+  mob('palm-lifts', 'Palm Lifts', 'reps', ['wrists', 'hands', 'forearms'], {
+    equipment: BODY,
+    figure: 'palm-lifts',
+    steps: [
+      'Kneel on all fours with your hands under your shoulders, fingers spread.',
+      'Keeping your fingertips and knuckles on the floor, lift your palms off the floor.',
+      'Lower slowly. Do the reps with fingers forward, then turned out to the sides.',
+    ],
+    cues: ['Builds the finger and wrist strength handstands need', 'Shift your weight back to make it easier'],
+  }),
+  flex('wrist-flexor-stretch', 'Wrist Flexor Stretch', 'hold', ['forearms', 'wrists'], {
+    equipment: BODY,
+    perSide: true,
+    figure: 'wrist-flexor-stretch',
+    steps: [
+      'Hold one arm straight out in front of you, palm facing forward and fingers pointing up.',
+      'With your other hand, gently pull your fingers back toward you.',
+      'Hold where you feel a stretch along the underside of your forearm.',
+    ],
+    cues: ['A stretch, not pain', 'Point the fingers down instead to stretch at a different angle'],
+  }),
+  flex('wrist-extensor-stretch', 'Wrist Extensor Stretch', 'hold', ['forearms', 'wrists'], {
+    equipment: BODY,
+    perSide: true,
+    figure: 'wrist-extensor-stretch',
+    steps: [
+      'Hold one arm straight out in front of you, palm down.',
+      'Let your hand drop and gently press the back of it toward you with your other hand.',
+      'Hold where you feel a stretch along the top of your forearm.',
+    ],
+    cues: ['Make a loose fist first to reach deeper', 'Helpful for sore elbows from gripping and typing'],
+  }),
+  flex('prayer-stretch', 'Prayer Stretch', 'hold', ['wrists', 'forearms'], {
+    equipment: BODY,
+    figure: 'prayer-stretch',
+    steps: ['Press your palms together in front of your chest, fingers pointing up.', 'Keeping the palms together, slowly lower your hands toward your waist.', 'Stop and hold where you feel the stretch.'],
+    cues: ['Elbows drift out to the sides', 'Keep the heels of your hands touching'],
+  }),
+  flex('reverse-prayer', 'Reverse Prayer Stretch', 'hold', ['wrists', 'forearms'], {
+    equipment: BODY,
+    figure: 'reverse-prayer',
+    steps: ['Press the backs of your hands together in front of your belly, fingers pointing down.', 'Slowly raise your hands toward your chest, keeping the backs together.', 'Hold where you feel the stretch.'],
+    cues: ['Go gently: this one is often tighter than the prayer stretch'],
+  }),
+  str('wrist-curl', 'Wrist Curl', 'weighted', ['forearms', 'wrists'], {
+    equipment: 'light dumbbell',
+    figure: 'wrist-curl',
+    steps: [
+      'Sit with your forearm on your thigh or a bench, palm up, wrist just past the edge.',
+      'Let the dumbbell roll your wrist down slowly.',
+      'Curl your wrist up as far as you can, then lower with control.',
+    ],
+    cues: ['Start very light: 2–5 lb is plenty', 'Strong wrists handle push-ups and planks better'],
+  }),
+  str('reverse-wrist-curl', 'Reverse Wrist Curl', 'weighted', ['forearms', 'wrists'], {
+    equipment: 'light dumbbell',
+    figure: 'reverse-wrist-curl',
+    steps: ['Sit with your forearm on your thigh or a bench, palm down, wrist just past the edge.', 'Lower the back of your hand slowly.', 'Lift it up as high as you can, then lower with control.'],
+    cues: ['Go lighter than wrist curls', 'Can ease “tennis elbow” type soreness over time'],
+  }),
+
+  // ── Mobility: feet and ankles ──────────────────────────────────────
+  mob('toe-yoga', 'Toe Yoga', 'reps', ['feet'], {
+    equipment: BODY,
+    figure: 'toe-yoga',
+    steps: [
+      'Sit or stand with your feet flat.',
+      'Lift just your big toes while your other toes stay pressed down.',
+      'Then press your big toes down and lift the other four.',
+      'Alternate slowly.',
+    ],
+    cues: ['Hard at first: it gets easier within a week or two', 'Use a hand to hold toes down while you learn'],
+  }),
+  mob('toe-spreads', 'Toe Spreads', 'reps', ['feet'], {
+    equipment: BODY,
+    figure: 'toe-spreads',
+    steps: ['Sit with your feet flat, shoes off.', 'Spread your toes as wide as you can, keeping them on the floor.', 'Hold for 3 seconds, then relax.'],
+    cues: ['Toe spacers between reps help if your toes are stuck together from shoes'],
+  }),
+  mob('short-foot', 'Short Foot (Arch Lift)', 'hold', ['feet', 'ankles'], {
+    equipment: BODY,
+    figure: 'short-foot',
+    steps: [
+      'Stand or sit with your foot flat and your toes relaxed.',
+      'Draw the ball of your foot toward your heel to lift your arch, without curling your toes.',
+      'Hold, breathing normally, then relax.',
+    ],
+    cues: ['Toes stay long and flat', 'Builds the small muscles that support the arch on long hikes', 'Seated first, then standing, then on one leg'],
+  }),
+  mob('towel-scrunch', 'Towel Scrunches', 'reps', ['feet'], {
+    equipment: 'small towel',
+    perSide: true,
+    figure: 'towel-scrunch',
+    steps: ['Sit with a towel flat on the floor under your foot.', 'Scrunch your toes to pull the towel toward you.', 'Spread your toes, reach forward and scrunch again until the towel is gathered.'],
+    cues: ['Keep your heel down', 'Put a book on the far end of the towel to make it harder'],
+  }),
+  mob('ankle-pumps', 'Ankle Pumps', 'reps', ['ankles', 'calves'], {
+    equipment: BODY,
+    figure: 'ankle-pumps',
+    steps: ['Sit or lie with your legs out straight.', 'Pull your toes back toward you as far as you can.', 'Then point them away as far as you can.'],
+    cues: ['Great first thing in the morning, or on long drives and flights'],
+  }),
+  mob('ankle-alphabet', 'Ankle Alphabet', 'reps', ['ankles'], {
+    equipment: BODY,
+    perSide: true,
+    figure: 'ankle-alphabet',
+    steps: ['Sit with one leg out or crossed so the foot is free.', 'Trace the letters of the alphabet in the air with your big toe.', 'Make the letters big. One rep = one letter. Then switch feet.'],
+    cues: ['The movement comes from the ankle, not the knee'],
+  }),
+  mob('ankle-tilts', 'Ankle Tilts (In and Out)', 'reps', ['ankles', 'feet'], {
+    equipment: BODY,
+    figure: 'ankle-tilts',
+    steps: ['Sit with your feet just off the floor, or flat with weight light.', 'Roll your soles inward to face each other, then outward.', 'Keep your knees and shins still.'],
+    cues: ['Uneven trails roll the ankle both ways; this keeps that range easy'],
+  }),
+  mob('band-ankle-in-out', 'Band Ankle In and Out', 'reps', ['ankles', 'shins'], {
+    equipment: 'resistance band',
+    perSide: true,
+    figure: 'band-ankle-in-out',
+    steps: [
+      'Sit with your leg out and a light band looped around the front of your foot, anchored to one side.',
+      'Turn your sole away from the anchor against the band, then return slowly.',
+      'Do all reps, then move the anchor to the other side and turn the other way.',
+    ],
+    cues: ['Strengthens against rolled ankles', 'Only the foot turns; the knee stays pointing up'],
+  }),
+  cal('tib-raise', 'Tibialis Raise', 'reps', ['shins', 'ankles'], {
+    equipment: 'wall',
+    figure: 'tib-raise',
+    steps: [
+      'Lean your back against a wall with your feet about a step out in front of you.',
+      'Keep your heels down and lift your toes as high as you can.',
+      'Lower slowly. Move your feet farther from the wall to make it harder.',
+    ],
+    cues: ['Strengthens the shins for downhill walking', 'Expect a burn in the front of your shins'],
+  }),
+  mob('heel-walk', 'Heel Walks', 'hold', ['shins', 'ankles'], {
+    equipment: BODY,
+    figure: 'heel-walk',
+    steps: ['Lift your toes and walk on your heels with small steps.', 'Stand tall and keep your toes up the whole time.'],
+    cues: ['Great after a long walk or as a warm-up', 'Hold a wall or rail if you need balance'],
+  }),
+  mob('toe-walk', 'Tiptoe Walks', 'hold', ['calves', 'ankles', 'feet'], {
+    equipment: BODY,
+    figure: 'toe-walk',
+    steps: ['Rise up onto the balls of your feet.', 'Walk with small steps, staying as high as you can.', 'Keep your ankles from rolling out.'],
+    cues: ['Builds the calves and feet for climbs'],
+  }),
+  cal('heel-drops', 'Heel Drops on a Step', 'reps', ['calves', 'ankles'], {
+    equipment: 'step',
+    figure: 'heel-drops',
+    steps: [
+      'Stand with the balls of your feet on a step, holding a rail.',
+      'Rise up on both feet.',
+      'Take one foot off and lower slowly on the other, for about 3 seconds, until the heel is below the step.',
+      'Use both feet to come back up and repeat.',
+    ],
+    cues: ['Slow lowering is the point', 'A common plan for sore Achilles tendons; check with a physio if it hurts more'],
+  }),
+  flex('kneeling-toe-stretch', 'Kneeling Toe Stretch', 'hold', ['feet'], {
+    equipment: BODY,
+    figure: 'kneeling-toe-stretch',
+    steps: ['Kneel with your toes tucked under, so the soles of your toes are on the floor.', 'Slowly sit back toward your heels.', 'Hold where you feel a stretch under your toes and feet.'],
+    cues: ['Use your hands on the floor to take some weight', 'Start with 15–20 seconds; it can be intense'],
+  }),
+  flex('kneeling-shin-stretch', 'Kneeling Shin Stretch', 'hold', ['shins', 'ankles'], {
+    equipment: BODY,
+    figure: 'kneeling-shin-stretch',
+    steps: ['Kneel with the tops of your feet flat on the floor.', 'Slowly sit back toward your heels.', 'Hold where you feel a stretch along the front of your shins and ankles.'],
+    cues: ['Put a cushion under your knees or between calves and thighs if needed', 'Lift your knees slightly to stretch more'],
+  }),
+  flex('plantar-fascia-stretch', 'Plantar Fascia Stretch', 'hold', ['feet'], {
+    equipment: 'towel (optional)',
+    perSide: true,
+    figure: 'plantar-fascia-stretch',
+    steps: ['Sit and cross one ankle over the other knee.', 'Hold your toes and gently pull them back toward your shin.', 'Hold where you feel the stretch along the bottom of your foot.'],
+    cues: ['Do it before your first steps in the morning if your heels hurt then', 'A towel around the toes works if you can’t reach'],
+  }),
+  flex('big-toe-wall-stretch', 'Big Toe Stretch', 'hold', ['feet'], {
+    equipment: 'wall',
+    perSide: true,
+    figure: 'big-toe-wall-stretch',
+    steps: ['Stand facing a wall and place your big toe up against it, the ball of your foot on the floor.', 'Gently ease your knee forward toward the wall.', 'Hold where you feel the stretch under the big toe.'],
+    cues: ['A flexible big toe helps you push off on every step', 'Go gently: this is a small joint'],
+  }),
+  flex('soleus-stretch', 'Bent-Knee Calf Stretch', 'hold', ['calves', 'ankles'], {
+    equipment: 'wall',
+    perSide: true,
+    figure: 'soleus-stretch',
+    steps: ['Stand facing a wall in a short stagger, hands on the wall.', 'Keep your back heel down and bend that knee forward.', 'Hold where you feel the stretch low in the calf, near the ankle.'],
+    cues: ['Pairs with the straight-knee wall calf stretch', 'Eases tight ankles after hills'],
   }),
 
   // ── Flexibility: static stretches ──────────────────────────────────
@@ -2187,7 +2448,7 @@ export const EXERCISES: ExerciseDef[] = [
       'Hold where you feel a stretch along the inside of the straight leg.',
     ],
   }),
-  flex('calf-stretch', 'Wall Calf Stretch', 'hold', ['calves'], { equipment: 'wall', perSide: true, fedb: 'Calf_Stretch_Hands_Against_Wall' }),
+  flex('calf-stretch', 'Wall Calf Stretch', 'hold', ['calves', 'ankles'], { equipment: 'wall', perSide: true, fedb: 'Calf_Stretch_Hands_Against_Wall' }),
   flex('lat-stretch', 'Hanging Lat Stretch', 'hold', ['lats'], {
     equipment: BAR,
     figure: 'dead-hang',

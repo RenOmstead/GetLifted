@@ -1,8 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useState } from 'react'
 import { db } from '../db/db'
-import { Figure, hasFigure } from '../figures/Figure'
-import { FIGURES } from '../figures/poses'
+import { Figure, figureCaption, hasFigure } from '../figures/Figure'
 import { artUrl } from '../lib/art'
 import { fedbImageUrls } from '../lib/fedb'
 import type { ExerciseInfo } from '../lib/exercises'
@@ -73,7 +72,7 @@ export function ExerciseVisual({ exercise }: { exercise: ExerciseInfo }) {
       ) : view === 'figure' ? (
         <div className="visual">
           <Figure id={exercise.figure!} title={`${exercise.name} demonstration`} />
-          {FIGURES[exercise.figure!].caption && <span className="visual-caption">{FIGURES[exercise.figure!].caption}</span>}
+          {figureCaption(exercise.figure) && <span className="visual-caption">{figureCaption(exercise.figure)}</span>}
         </div>
       ) : view === 'photos' ? (
         <div className="visual photo">
