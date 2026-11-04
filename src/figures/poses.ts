@@ -821,4 +821,9 @@ export const FIGURES: Record<string, FigureDef> = {
       { ...STAND, arm: [92, 92], leg2: [95, -100], reach2: [112, 112], toe2: -40 },
     ],
   },
+  'legs-up-wall': {
+    props: [{ t: 'wall', x: 150 }],
+    hold: true,
+    poses: [{ at: [143, 184], torso: 180, head: 180, arm: [10, 10], leg: [-90, -90], toe: 0 }],
+  },
 }

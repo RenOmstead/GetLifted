@@ -1856,6 +1856,26 @@ export const EXERCISES: ExerciseDef[] = [
   car('rower', 'Rowing Machine', 'cardio', ['middle back', 'quadriceps'], { equipment: 'rowing machine', fedb: 'Rowing_Stationary' }),
   car('elliptical', 'Elliptical', 'cardio', ['quadriceps'], { equipment: 'elliptical machine', fedb: 'Elliptical_Trainer' }),
   car('stair-climber', 'Stair Climber', 'cardio', ['quadriceps', 'glutes'], { equipment: 'stair machine', fedb: 'Stairmaster' }),
+  car('hike', 'Hike', 'cardio', ['quadriceps', 'glutes', 'calves'], {
+    equipment: 'trail shoes or boots',
+    fedb: 'Trail_Running_Walking',
+    cues: ['Short steps uphill, soft knees downhill', 'Log the distance so your trip plan can count it'],
+  }),
+  car('ruck-walk', 'Rucking (Walk with a Pack)', 'cardio', ['quadriceps', 'glutes', 'traps'], {
+    equipment: 'daypack',
+    fedb: 'Trail_Running_Walking',
+    steps: [
+      'Load a daypack with 5–15 lb: water bottles or books work well.',
+      'Tighten the hip belt so the weight sits on your hips, not your shoulders.',
+      'Walk tall at a steady pace. Add weight slowly over the weeks.',
+    ],
+    cues: ['Start light and build up', 'Great practice for trail days'],
+  }),
+  car('incline-walk', 'Incline Treadmill Walk', 'cardio', ['glutes', 'calves', 'hamstrings'], {
+    equipment: 'treadmill',
+    fedb: 'Walking_Treadmill',
+    cues: ['Set the incline to 6–12% and walk without holding the rails', 'A great stand-in for hills'],
+  }),
   car('jump-rope', 'Jump Rope', 'cardio', ['calves'], { equipment: 'jump rope', fedb: 'Rope_Jumping' }),
 
   car('battle-ropes', 'Battle Ropes', 'cardio', ['shoulders', 'abdominals', 'forearms'], {
@@ -1989,6 +2009,17 @@ export const EXERCISES: ExerciseDef[] = [
     cues: ['Start with no weight or very light weight', 'Go slowly, 3–5 seconds each way'],
   }),
 
+  mob('foot-roll', 'Foot Roll', 'reps', ['calves'], {
+    equipment: 'ball or water bottle',
+    perSide: true,
+    fedb: 'Foot-SMR',
+    steps: [
+      'Sit or stand with a ball or frozen water bottle under one foot.',
+      'Roll it slowly from heel to toes for about a minute, pausing on tender spots.',
+      'Switch feet.',
+    ],
+    cues: ['Lovely after a long hike', 'A frozen bottle doubles as an ice pack'],
+  }),
   mob('thoracic-rotation', 'Thoracic Rotation', 'reps', ['middle back', 'obliques'], {
     equipment: BODY,
     perSide: true,
@@ -2153,6 +2184,16 @@ export const EXERCISES: ExerciseDef[] = [
       'Bring your knees together and gently tuck your hips under until you feel the front of your thigh stretch.',
     ],
     cues: ['Don’t arch your lower back', 'Knee points straight down'],
+  }),
+  flex('legs-up-wall', 'Legs Up the Wall', 'hold', ['hamstrings', 'lower back'], {
+    equipment: 'wall',
+    figure: 'legs-up-wall',
+    steps: [
+      'Sit sideways next to a wall, then swing your legs up it as you lie back.',
+      'Shuffle your hips close to the wall and let your arms rest by your sides.',
+      'Relax and breathe slowly for 3–10 minutes.',
+    ],
+    cues: ['A restful end to a long day on your feet', 'Bend your knees if your hamstrings pull'],
   }),
 ]
 

@@ -57,6 +57,14 @@ export default function Path() {
         <XpStrip journey={journey} />
       </div>
       <CoachCard suggestions={suggestions} />
+      <Link to="/trip" className="card card-link row tint-mint">
+        <Decor name="lantern_string" className="decor-inline" />
+        <div className="grow">
+          <div style={{ fontWeight: 700 }}>Hiking &amp; trip prep</div>
+          <div className="small text-2">Endurance plan, weight goal, trail stretches and recovery tips.</div>
+        </div>
+        <Icon name="chevronRight" className="muted" />
+      </Link>
       <div className="segmented">
         <button className={tab === 'skills' ? 'active' : ''} onClick={() => setParams({ tab: 'skills' }, { replace: true })}>
           Calisthenics

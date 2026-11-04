@@ -26,6 +26,17 @@ export interface Settings {
   fastingGoalHours: number
   /** Routine ids planned for each weekday, index 0 = Sunday. */
   weeklyPlan: number[][]
+  /** A hiking trip you're training for. */
+  trip: TripGoal | null
+}
+
+export interface TripGoal {
+  name: string
+  /** First day of the trip, YYYY-MM-DD. */
+  date: string
+  /** When the plan started and your longest walk then, so the plan stays put. */
+  startDate: string
+  startLongMi: number
 }
 
 export interface WeightEntry {

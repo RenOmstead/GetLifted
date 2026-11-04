@@ -6,6 +6,9 @@ import { STARTER_ROUTINES } from '../data/starterRoutines'
 import { db } from '../db/db'
 import { useSettings } from '../db/settings'
 import type { Routine } from '../db/types'
+import { dateKey, daysBetween } from '../lib/dates'
+import { buildPlan, mondayKey, PHASE_INFO } from '../lib/trip'
+import { distanceUnit, fmt, M_PER_MI, mToDisplay } from '../lib/units'
 import { challengeEntries, challengeStatus, dayTarget, dayText } from '../lib/gamify'
 import { startWorkout, useActiveWorkout } from '../lib/workoutActions'
 import { Decor } from './Decor'
@@ -153,5 +156,41 @@ export function TodayChallenges() {
         )
       })}
     </div>
+  )
+}
+
+/** Countdown and this week's hiking targets for the trip you're training for. */
+export function TripCard() {
+  const settings = useSettings()
+  const trip = settings.trip
+  if (!trip)
+    return (
+      <Link to="/trip" className="card card-link row tint-mint">
+        <Decor name="lantern_string" className="decor-inline" />
+        <div className="grow">
+          <div style={{ fontWeight: 700 }}>Training for a hiking trip?</div>
+          <div className="small text-2">Get a week-by-week plan, weight goal and trail tips.</div>
+        </div>
+        <Icon name="chevronRight" className="muted" />
+      </Link>
+    )
+  const today = dateKey()
+  const week = buildPlan(trip.date, trip.startLongMi, trip.startDate).find((w) => w.monday === mondayKey(today))
+  const days = daysBetween(today, trip.date)
+  return (
+    <Link to="/trip" className="card card-link stack-sm tint-mint">
+      <div className="row-between">
+        <div className="card-title" style={{ margin: 0 }}>
+          <Icon name="calendar" size={18} /> {trip.name}
+        </div>
+        <span className="small text-2">{days > 0 ? (days < 21 ? `${days} days` : `${Math.round(days / 7)} weeks`) : 'Now!'}</span>
+      </div>
+      {week && (
+        <div className="small text-2">
+          {PHASE_INFO[week.phase].name} week: {week.walks} walks, long walk {fmt(mToDisplay(week.longMi * M_PER_MI, settings.units), 1)} {distanceUnit(settings.units)}
+          {week.backToBackMi ? ' + a back-to-back day' : ''}
+        </div>
+      )}
+    </Link>
   )
 }

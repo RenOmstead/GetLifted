@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router'
 import { Decor } from '../components/Decor'
 import { Icon, type IconName } from '../components/Icon'
 import { CoachCard, useCoach, useJourney } from '../components/Journey'
-import { QuickStart, TodayChallenges } from '../components/QuickStart'
+import { QuickStart, TodayChallenges, TripCard } from '../components/QuickStart'
 import { Meter, Ring } from '../components/Ring'
 import { SKILLS, targetLabel } from '../data/skills'
 import { db } from '../db/db'
@@ -119,6 +119,7 @@ export default function Today() {
       <ActiveWorkoutCard />
       <QuickStart />
       <TodayChallenges />
+      <TripCard />
 
       <CoachCard suggestions={suggestions} limit={2} title="A whisper from your coach" />
 

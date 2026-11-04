@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { SKILLS } from '../data/skills'
+import { STARTER_ROUTINES } from '../data/starterRoutines'
 import { db } from '../db/db'
 import type { Routine, RoutineEntry, Workout } from '../db/types'
 import { dateKey } from './dates'
@@ -28,6 +29,18 @@ export async function startWorkout(routine?: Routine): Promise<number> {
     endedAt: null,
     entries: routine ? entriesFromRoutine(routine.entries, workouts) : [],
   }) as Promise<number>
+}
+
+/** Starts one of the starter routines, adding it to your routines the first time. */
+export async function startStarter(name: string): Promise<number> {
+  const starter = STARTER_ROUTINES.find((r) => r.name === name)
+  if (!starter) throw new Error(`No starter routine called ${name}`)
+  let routine = await db.routines.where('name').equals(name).first()
+  if (!routine) {
+    const id = await db.routines.add({ name, entries: starter.entries, createdAt: Date.now() })
+    routine = await db.routines.get(id)
+  }
+  return startWorkout(routine)
 }
 
 /** Adds exercises to the workout in progress, or starts a new one with them. Returns the workout id. */

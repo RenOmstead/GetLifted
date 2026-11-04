@@ -2463,3 +2463,54 @@ body:has(.timer-bar) .app {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Trip prep */
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.plan-table th {
+  text-align: left;
+  font-family: var(--font-engraved);
+  font-weight: 400;
+  color: var(--muted);
+  padding: 4px 6px;
+}
+
+.plan-table td {
+  padding: 6px;
+  border-top: 1px dashed var(--border);
+  white-space: nowrap;
+}
+
+.plan-table tr.current td {
+  background: rgba(216, 170, 102, 0.22);
+  font-weight: 700;
+}
+
+.checkpoints {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 6px;
+}
+
+.checkpoints > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 250, 240, 0.7);
+}
+
+.tips-card > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.tips-card > summary::-webkit-details-marker {
+  display: none;
+}
