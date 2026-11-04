@@ -2604,3 +2604,114 @@ body:has(.timer-bar) .app {
 .ys-week .ys-before {
   opacity: 0.45;
 }
+
+/* Yellowstone goals, stepping stones and roadmap */
+.goal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.card.goal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+}
+
+.goal-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.goal-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--plum);
+}
+
+.stone-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--border);
+}
+
+.stone-row:first-of-type {
+  border-top: 0;
+}
+
+.stone-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--paper-edge);
+  background: var(--paper-2);
+  font-size: 1.05rem;
+}
+
+.stone-row.done .stone-dot {
+  border-color: #8a5a2b;
+  background: radial-gradient(circle at 50% 35%, #fbe7b4, #d8aa66);
+  color: #6b3f12;
+}
+
+.stone-trail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 14px;
+  border-left: 3px dotted rgba(201, 149, 79, 0.6);
+}
+
+.stone-step.current .stone-dot {
+  border: 2px solid var(--plum);
+  box-shadow: 0 0 0 4px rgba(240, 207, 138, 0.35);
+}
+
+.stone-step.later {
+  opacity: 0.75;
+}
+
+.celebrate {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(240, 207, 138, 0.4), 0 0 24px rgba(240, 207, 138, 0.35);
+}
+
+.roadmap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.road-step {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 250, 240, 0.55);
+}
+
+.road-step.here {
+  border: 2px solid var(--gold);
+  background: rgba(240, 207, 138, 0.18);
+}
+
+.road-step.done {
+  opacity: 0.7;
+}
+
+.road-dot {
+  flex: none;
+  width: 22px;
+  text-align: center;
+  color: var(--brass);
+  font-size: 1.05rem;
+}
