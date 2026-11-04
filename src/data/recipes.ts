@@ -1,0 +1,321 @@
+/**
+ * Simple recipes built from the Aldi staples in src/data/aldi.ts. Amounts are in servings of each
+ * staple (see its serving label), so nutrition and cost are calculated, not typed in.
+ * Salt, pepper and dried spices aren't counted: they add little cost or energy, but salt adds sodium.
+ */
+export type RecipeTag = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'trail' | 'meal prep' | 'vegetarian'
+
+export interface BuiltinRecipe {
+  id: string
+  name: string
+  blurb: string
+  servings: number
+  minutes: number
+  tags: RecipeTag[]
+  /** [staple id, servings of that staple, note] */
+  ingredients: [string, number, string?][]
+  steps: string[]
+}
+
+export const BUILTIN_RECIPES: BuiltinRecipe[] = [
+  {
+    id: 'burrito-bowls',
+    name: 'Chicken burrito bowls',
+    blurb: 'Rice, beans, chicken and salsa. Packs well for 4 lunches.',
+    servings: 4,
+    minutes: 35,
+    tags: ['lunch', 'dinner', 'meal prep'],
+    ingredients: [
+      ['chicken-breast', 4, '1 lb, cut in strips'],
+      ['rice-white', 4, '1 cup dry'],
+      ['black-beans', 3.5, '1 can, rinsed'],
+      ['corn', 3, '1 can, drained'],
+      ['salsa', 4, '½ cup'],
+      ['cheddar', 2, '½ cup'],
+      ['romaine', 2, '3 cups shredded'],
+      ['olive-oil', 1],
+    ],
+    steps: [
+      'Cook the rice in 2 cups of water: bring to a boil, cover, simmer 18 minutes.',
+      'Season the chicken with chili powder, cumin, garlic powder and a pinch of salt.',
+      'Heat the oil in a pan and cook the chicken 6–8 minutes, turning, until it reaches 165 °F inside.',
+      'Warm the beans and corn together.',
+      'Divide rice, beans and corn, and chicken into 4 containers. Top with lettuce, salsa and cheese.',
+    ],
+  },
+  {
+    id: 'turkey-taco-skillet',
+    name: 'Turkey taco skillet',
+    blurb: 'One pan, 20 minutes. Serve in warm corn tortillas.',
+    servings: 4,
+    minutes: 25,
+    tags: ['dinner', 'meal prep'],
+    ingredients: [
+      ['ground-turkey', 4, '1 lb'],
+      ['onions', 1, 'diced'],
+      ['bell-pepper', 1, 'diced'],
+      ['black-beans', 3.5, '1 can, rinsed'],
+      ['diced-tomatoes', 3.4, '1 can'],
+      ['cheddar', 2, '½ cup'],
+      ['tortilla-corn', 4, '8 tortillas'],
+    ],
+    steps: [
+      'Brown the turkey with the onion and pepper, breaking it up, about 8 minutes.',
+      'Stir in taco seasoning (or chili powder, cumin and garlic), the beans and the tomatoes. Simmer 10 minutes.',
+      'Sprinkle with cheese, cover until it melts, and spoon into warm tortillas.',
+    ],
+  },
+  {
+    id: 'sheet-pan-chicken',
+    name: 'Sheet-pan chicken, sweet potatoes and broccoli',
+    blurb: 'Everything roasts on one tray at 425 °F.',
+    servings: 4,
+    minutes: 40,
+    tags: ['dinner', 'meal prep'],
+    ingredients: [
+      ['chicken-breast', 4, '1 lb, cubed'],
+      ['sweet-potatoes', 4, 'cubed'],
+      ['broccoli', 4, '1 bag'],
+      ['olive-oil', 2, '2 tbsp'],
+    ],
+    steps: [
+      'Heat the oven to 425 °F. Toss the sweet potatoes with half the oil and roast 15 minutes.',
+      'Toss the chicken and broccoli with the rest of the oil, garlic powder, paprika, salt and pepper.',
+      'Add them to the tray and roast 15–18 minutes more, until the chicken reaches 165 °F.',
+    ],
+  },
+  {
+    id: 'overnight-oats',
+    name: 'Blueberry peanut butter overnight oats',
+    blurb: 'Make 4 jars on Sunday; grab one each morning.',
+    servings: 4,
+    minutes: 10,
+    tags: ['breakfast', 'meal prep', 'vegetarian'],
+    ingredients: [
+      ['oats', 4, '2 cups'],
+      ['milk-2', 2, '2 cups'],
+      ['greek-yogurt', 2, '1½ cups'],
+      ['blueberries', 2, '2 cups'],
+      ['peanut-butter', 2, '¼ cup'],
+    ],
+    steps: [
+      'In each of 4 jars, stir ½ cup oats, ½ cup milk and a heaping ⅓ cup yogurt.',
+      'Top each with ½ cup blueberries and 1 tbsp peanut butter.',
+      'Refrigerate overnight. Keeps 4 days.',
+    ],
+  },
+  {
+    id: 'egg-scramble',
+    name: 'Veggie egg scramble with toast',
+    blurb: 'A quick protein breakfast for two.',
+    servings: 2,
+    minutes: 15,
+    tags: ['breakfast', 'vegetarian'],
+    ingredients: [
+      ['eggs', 4],
+      ['spinach', 1, '2 cups'],
+      ['bell-pepper', 0.5, 'diced'],
+      ['onions', 0.5, 'diced'],
+      ['cheddar', 1, '¼ cup'],
+      ['bread-ww', 2, '2 slices'],
+      ['butter', 0.5, '1½ tsp'],
+    ],
+    steps: ['Melt the butter and soften the pepper and onion, 4 minutes.', 'Add the spinach until it wilts, then the beaten eggs. Stir gently until just set.', 'Top with cheese and serve with toast.'],
+  },
+  {
+    id: 'yogurt-bowl',
+    name: 'Greek yogurt berry bowl',
+    blurb: '17 g of protein in two minutes.',
+    servings: 1,
+    minutes: 2,
+    tags: ['breakfast', 'snack', 'vegetarian'],
+    ingredients: [
+      ['greek-yogurt', 1],
+      ['blueberries', 0.5, '½ cup, thawed'],
+      ['almonds', 0.5, 'about 12'],
+    ],
+    steps: ['Spoon the yogurt into a bowl and top with the berries and almonds.'],
+  },
+  {
+    id: 'spaghetti-meat-sauce',
+    name: 'Spaghetti with lean meat sauce',
+    blurb: 'Family classic with spinach hidden in the sauce.',
+    servings: 4,
+    minutes: 30,
+    tags: ['dinner'],
+    ingredients: [
+      ['pasta', 4, '8 oz'],
+      ['ground-beef-93', 4, '1 lb'],
+      ['marinara', 5.2, '1 jar'],
+      ['onions', 1, 'diced'],
+      ['spinach', 1, '2 cups, chopped'],
+    ],
+    steps: [
+      'Cook the pasta in salted boiling water.',
+      'Brown the beef with the onion. Pour off any fat.',
+      'Add the sauce and spinach and simmer 10 minutes. Toss with the drained pasta.',
+    ],
+  },
+  {
+    id: 'beef-broccoli-bowls',
+    name: 'Ground beef and broccoli rice bowls',
+    blurb: 'Takeout flavor for a fraction of the cost.',
+    servings: 4,
+    minutes: 25,
+    tags: ['dinner', 'meal prep'],
+    ingredients: [
+      ['ground-beef-93', 4, '1 lb'],
+      ['broccoli', 4, '1 bag'],
+      ['rice-white', 4, '1 cup dry'],
+      ['soy-sauce', 3, '3 tbsp'],
+      ['olive-oil', 1],
+    ],
+    steps: [
+      'Cook the rice.',
+      'Brown the beef in the oil with garlic and ginger if you have them.',
+      'Add the broccoli and a splash of water, cover 4 minutes, then stir in the soy sauce. Serve over rice.',
+    ],
+  },
+  {
+    id: 'tuna-wraps',
+    name: 'Tuna salad wraps',
+    blurb: 'No-cook lunch. Greek yogurt stands in for mayo.',
+    servings: 2,
+    minutes: 10,
+    tags: ['lunch'],
+    ingredients: [
+      ['tuna', 2, '1 can, drained'],
+      ['greek-yogurt', 0.35, '¼ cup'],
+      ['tortilla-flour', 2],
+      ['spinach', 0.5, '1 cup'],
+      ['baby-carrots', 2, 'on the side'],
+    ],
+    steps: ['Mix the tuna with the yogurt, a squeeze of lemon, salt and pepper.', 'Spread on the tortillas, add spinach and roll up. Carrots on the side.'],
+  },
+  {
+    id: 'turkey-chili',
+    name: 'Turkey and black bean chili',
+    blurb: 'Big pot, freezes well.',
+    servings: 6,
+    minutes: 45,
+    tags: ['dinner', 'meal prep'],
+    ingredients: [
+      ['ground-turkey', 4, '1 lb'],
+      ['black-beans', 7, '2 cans, rinsed'],
+      ['diced-tomatoes', 6.8, '2 cans'],
+      ['onions', 1, 'diced'],
+      ['bell-pepper', 1, 'diced'],
+      ['chicken-broth', 1, '1 cup'],
+      ['cheddar', 1.5, 'for topping'],
+    ],
+    steps: [
+      'Brown the turkey with the onion and pepper.',
+      'Add 2 tbsp chili powder, 2 tsp cumin, the beans, tomatoes and broth.',
+      'Simmer 30 minutes. Top bowls with cheese.',
+    ],
+  },
+  {
+    id: 'breakfast-burritos',
+    name: 'Freezer breakfast burritos',
+    blurb: 'Wrap in foil and freeze; microwave 2 minutes.',
+    servings: 6,
+    minutes: 40,
+    tags: ['breakfast', 'meal prep', 'vegetarian'],
+    ingredients: [
+      ['eggs', 8],
+      ['potatoes', 2, 'diced small'],
+      ['onions', 0.5, 'diced'],
+      ['bell-pepper', 1, 'diced'],
+      ['cheddar', 3, '¾ cup'],
+      ['salsa', 6],
+      ['tortilla-flour', 6],
+    ],
+    steps: [
+      'Cook the potatoes, onion and pepper in a nonstick pan until tender, about 12 minutes.',
+      'Add the beaten eggs and scramble until just set.',
+      'Fill each tortilla with eggs, cheese and salsa. Roll, wrap and freeze.',
+    ],
+  },
+  {
+    id: 'tilapia-rice',
+    name: 'Lemon-pepper tilapia with rice and vegetables',
+    blurb: 'Light, fast and very high in protein.',
+    servings: 4,
+    minutes: 25,
+    tags: ['dinner'],
+    ingredients: [
+      ['tilapia', 4, '4 fillets'],
+      ['rice-white', 4, '1 cup dry'],
+      ['mixed-veg', 3.8, '1 bag'],
+      ['butter', 1, '1 tbsp'],
+      ['olive-oil', 1],
+    ],
+    steps: [
+      'Cook the rice. Steam or microwave the vegetables with the butter.',
+      'Season the fish with lemon pepper. Cook in the oil 3–4 minutes a side, until it flakes.',
+    ],
+  },
+  {
+    id: 'salmon-quinoa',
+    name: 'Salmon quinoa bowls',
+    blurb: 'Omega-3s plus a complete plant protein.',
+    servings: 4,
+    minutes: 30,
+    tags: ['lunch', 'dinner'],
+    ingredients: [
+      ['salmon', 4, '4 fillets'],
+      ['quinoa', 4, '1 cup dry'],
+      ['spinach', 2, '4 cups'],
+      ['olive-oil', 1],
+    ],
+    steps: [
+      'Rinse the quinoa and simmer in 2 cups of water, covered, 15 minutes.',
+      'Roast the salmon at 400 °F for 12–15 minutes.',
+      'Wilt the spinach in the warm quinoa with the oil and lemon. Top with salmon.',
+    ],
+  },
+  {
+    id: 'chickpea-quinoa-salad',
+    name: 'Chickpea and veggie quinoa salad',
+    blurb: 'Meatless lunch that holds up in the fridge.',
+    servings: 4,
+    minutes: 25,
+    tags: ['lunch', 'vegetarian', 'meal prep'],
+    ingredients: [
+      ['quinoa', 4, '1 cup dry'],
+      ['chickpeas', 3.1, '1 can, rinsed'],
+      ['bell-pepper', 1, 'diced'],
+      ['spinach', 2, 'chopped'],
+      ['olive-oil', 2, '2 tbsp'],
+    ],
+    steps: ['Cook and cool the quinoa.', 'Toss with the chickpeas, pepper and spinach.', 'Dress with the oil, lemon juice or vinegar, salt and pepper.'],
+  },
+  {
+    id: 'pb-banana-wrap',
+    name: 'Peanut butter banana wrap',
+    blurb: 'Trail lunch: squash-proof carbs, fat and some protein.',
+    servings: 1,
+    minutes: 3,
+    tags: ['trail', 'lunch', 'vegetarian'],
+    ingredients: [
+      ['tortilla-flour', 1],
+      ['peanut-butter', 1],
+      ['bananas', 1],
+    ],
+    steps: ['Spread the peanut butter on the tortilla, lay the banana on it and roll tight. Wrap in foil for the pack.'],
+  },
+  {
+    id: 'trail-mix',
+    name: 'Salty-sweet trail mix',
+    blurb: 'Pretzels add salt you lose in sweat on long hikes.',
+    servings: 8,
+    minutes: 5,
+    tags: ['trail', 'snack', 'vegetarian'],
+    ingredients: [
+      ['almonds', 4, '4 oz'],
+      ['raisins', 4, '1 cup'],
+      ['pretzels', 4, '4 oz'],
+    ],
+    steps: ['Mix and divide into 8 snack bags (about ½ cup each).'],
+  },
+]

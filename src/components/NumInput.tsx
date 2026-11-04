@@ -1,4 +1,4 @@
-import { useEffect, useState, type InputHTMLAttributes } from 'react'
+import { useState, type InputHTMLAttributes } from 'react'
 import { parseNum } from '../lib/units'
 
 interface NumInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
@@ -8,16 +8,15 @@ interface NumInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'val
   digits?: number
 }
 
-/** Number field that keeps what you type ("62.") while focused and tidies it on blur. */
-export function NumInput({ value, onChange, digits = 2, ...rest }: NumInputProps) {
+/**
+ * Number field that keeps what you type ("62.") while focused and tidies it on blur.
+ * Outside of editing it always shows `value`, so a new value can never land on top of what
+ * you're typing.
+ */
+export function NumInput({ value, onChange, digits = 2, onFocus, onBlur, ...rest }: NumInputProps) {
   const show = (v: number | null | undefined) => (v == null || !Number.isFinite(v) ? '' : String(Number(v.toFixed(digits))))
-  const [text, setText] = useState(show(value))
-  const [focused, setFocused] = useState(false)
-
-  useEffect(() => {
-    if (!focused) setText(show(value))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, focused])
+  /** What you're typing; null when the field isn't being edited. */
+  const [text, setText] = useState<string | null>(null)
 
   return (
     <input
@@ -25,12 +24,16 @@ export function NumInput({ value, onChange, digits = 2, ...rest }: NumInputProps
       inputMode="decimal"
       autoComplete="off"
       {...rest}
-      value={text}
+      value={text ?? show(value)}
       onFocus={(e) => {
-        setFocused(true)
+        setText(show(value))
         e.currentTarget.select()
+        onFocus?.(e)
       }}
-      onBlur={() => setFocused(false)}
+      onBlur={(e) => {
+        setText(null)
+        onBlur?.(e)
+      }}
       onChange={(e) => {
         const t = e.target.value.replace(/[^0-9.,]/g, '')
         setText(t)

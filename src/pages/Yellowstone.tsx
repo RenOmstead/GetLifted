@@ -17,6 +17,7 @@ import { addDays, dateKey, daysBetween, formatSeconds, formatShortDate, parseDat
 import { useExercises, type ExerciseInfo } from '../lib/exercises'
 import { displayToKg, displayToM, distanceUnit, fmt, kgToDisplay, KG_PER_LB, mToDisplay, weightUnit } from '../lib/units'
 import { workoutWith } from '../lib/workoutActions'
+import { FuelSheet } from './nutrition/FuelCard'
 import { WeightGoalsPrompt, WeightGoalsQuiz } from './WeightGoalsQuiz'
 import { Celebrate, GoalCards, LogWalk, NextStones, Roadmap, StoneTrail, useGoals } from './YellowstoneGoals'
 import {
@@ -977,6 +978,7 @@ function Food({ prog, p, onAsk }: { prog: Prog; p: YellowstoneSettings; onAsk: (
   const latest = useLiveQuery(() => db.weights.orderBy('date').last(), [])
   const [activity, setActivity] = useState(1.375)
   const [applied, setApplied] = useState(false)
+  const [fuelOpen, setFuelOpen] = useState(false)
   const f = p.food
   const setFood = (patch: Partial<YellowstoneSettings['food']>) => void save({ food: { ...f, ...patch } }, p)
   const ready = latest && s.heightCm && s.birthYear
@@ -1107,7 +1109,13 @@ function Food({ prog, p, onAsk }: { prog: Prog; p: YellowstoneSettings; onAsk: (
             <p className="tiny muted">Eat a bit more on long walk days. Never go much below these numbers.</p>
           </>
         )}
+        {f.mode !== 'none' && (
+          <button className="btn sm" onClick={() => setFuelOpen(true)}>
+            <Icon name="target" size={16} /> Plan food and water for a long hike
+          </button>
+        )}
       </div>
+      <FuelSheet open={fuelOpen} onClose={() => setFuelOpen(false)} weightKg={latest?.kg ?? null} losing={losing} />
     </>
   )
 }
