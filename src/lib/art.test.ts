@@ -19,3 +19,12 @@ describe('exercise visuals', () => {
     expect(cal.filter((e) => ART[e.id]).length).toBeGreaterThan(40)
   })
 })
+
+describe('target areas', () => {
+  it('finds exercises for every area', async () => {
+    const { TARGET_AREAS, hitsArea } = await import('./exercises')
+    for (const a of TARGET_AREAS) expect(EXERCISES.filter((e) => hitsArea(e.muscles, a)).length, a).toBeGreaterThan(5)
+    expect(hitsArea(['glutes'], null)).toBe(true)
+    expect(hitsArea(['biceps'], 'Legs')).toBe(false)
+  })
+})

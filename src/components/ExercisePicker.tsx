@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react'
 import { CATEGORY_LABELS, TRACK_LABELS } from '../data/exercises'
 import { db } from '../db/db'
 import type { ExerciseCategory, TrackType } from '../db/types'
-import { searchExercises, useExercises, type ExerciseInfo } from '../lib/exercises'
+import { hitsArea, searchExercises, useExercises, type TargetArea, type ExerciseInfo } from '../lib/exercises'
 import { fedbImageUrls, fedbToCustom, useFedb, type FedbExercise } from '../lib/fedb'
 import { uid } from '../lib/workouts'
 import { ExerciseThumb, ThumbPhoto } from './ExerciseVisual'
+import { AreaChips } from './AreaChips'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
 
@@ -24,24 +25,26 @@ export function ExercisePicker({ open, onClose, onPick, title = 'Add exercises' 
   const [tab, setTab] = useState<'curated' | 'library' | 'custom'>('curated')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<ExerciseCategory | 'all'>('all')
+  const [area, setArea] = useState<TargetArea | null>(null)
   const [selected, setSelected] = useState<string[]>([])
   const fedb = useFedb(open && tab === 'library')
 
   const curated = useMemo(() => {
     const inCat = category === 'all' ? list : list.filter((e) => e.category === category)
     return searchExercises(
-      inCat.filter((e) => !e.id.startsWith('fedb:')),
+      inCat.filter((e) => !e.id.startsWith('fedb:') && hitsArea(e.muscles, area)),
       query,
     )
-  }, [list, category, query])
+  }, [list, category, query, area])
 
   const library = useMemo(() => {
     if (!fedb.data) return []
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean)
     return fedb.data
+      .filter((e) => hitsArea(e.primaryMuscles, area))
       .filter((e) => terms.every((t) => `${e.name} ${e.equipment ?? ''} ${e.primaryMuscles.join(' ')} ${e.category}`.toLowerCase().includes(t)))
       .slice(0, 80)
-  }, [fedb.data, query])
+  }, [fedb.data, query, area])
 
   const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
@@ -78,6 +81,7 @@ export function ExercisePicker({ open, onClose, onPick, title = 'Add exercises' 
             <input className="input" placeholder={tab === 'library' ? 'Search 870+ exercises, machines, stretches' : 'Search name, muscle or equipment'} value={query} onChange={(e) => setQuery(e.target.value)} />
           </label>
         )}
+        {tab !== 'custom' && <AreaChips value={area} onChange={setArea} />}
 
         {tab === 'curated' && (
           <>
