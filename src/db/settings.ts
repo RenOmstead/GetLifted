@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS: Settings = {
   restVibrate: true,
   fastingGoalHours: 16,
   weeklyPlan: [[], [], [], [], [], [], []],
+  yellowstone: null,
 }
 
 export function useSettings(): Settings {

@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ExerciseThumb, ThumbPhoto } from '../../components/ExerciseVisual'
+import { AreaChips } from '../../components/AreaChips'
 import { Icon } from '../../components/Icon'
 import { CATEGORY_LABELS } from '../../data/exercises'
 import type { ExerciseCategory } from '../../db/types'
-import { searchExercises, useExercises } from '../../lib/exercises'
+import { hitsArea, searchExercises, useExercises, type TargetArea } from '../../lib/exercises'
 import { fedbImageUrls, useFedb } from '../../lib/fedb'
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ExerciseCategory[]
@@ -17,20 +18,22 @@ export default function Library() {
   const [tab, setTab] = useState<'curated' | 'full'>('curated')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<ExerciseCategory | 'all'>('all')
+  const [area, setArea] = useState<TargetArea | null>(null)
   const [equipment, setEquipment] = useState<string | null>(null)
   const fedb = useFedb(tab === 'full')
 
   const curated = useMemo(
-    () => searchExercises((category === 'all' ? list : list.filter((e) => e.category === category)).filter((e) => !e.id.startsWith('fedb:')), query),
-    [list, category, query],
+    () => searchExercises((category === 'all' ? list : list.filter((e) => e.category === category)).filter((e) => !e.id.startsWith('fedb:') && hitsArea(e.muscles, area)), query),
+    [list, category, query, area],
   )
   const full = useMemo(() => {
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean)
     return (fedb.data ?? [])
       .filter((e) => !equipment || e.equipment === equipment)
+      .filter((e) => hitsArea(e.primaryMuscles, area))
       .filter((e) => terms.every((t) => `${e.name} ${e.equipment ?? ''} ${e.primaryMuscles.join(' ')} ${e.category}`.toLowerCase().includes(t)))
       .slice(0, 120)
-  }, [fedb.data, query, equipment])
+  }, [fedb.data, query, equipment, area])
 
   return (
     <div className="page">
@@ -52,6 +55,7 @@ export default function Library() {
         <Icon name="search" size={18} />
         <input className="input" placeholder="Search by name, muscle or machine" value={query} onChange={(e) => setQuery(e.target.value)} />
       </label>
+      <AreaChips value={area} onChange={setArea} />
 
       {tab === 'curated' ? (
         <>

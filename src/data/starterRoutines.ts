@@ -87,4 +87,48 @@ export const STARTER_ROUTINES: Starter[] = [
     blurb: 'Quads, hamstrings, glutes and calves.',
     entries: [reps('back-squat', 4, 6, 180), reps('romanian-deadlift', 3, 8, 120), reps('leg-press', 3, 12), reps('lying-leg-curl', 3, 12, 60), reps('standing-calf-raise', 3, 15, 60)],
   },
+  {
+    name: 'Trail Warm-Up',
+    blurb: '5 minutes before a walk or hike, or first thing on a trip morning.',
+    entries: [
+      reps('ankle-circles', 1, 10, 0),
+      reps('leg-swing-front', 1, 10, 0),
+      reps('leg-swing-side', 1, 10, 0),
+      reps('hip-circles', 1, 10, 0),
+      reps('knee-to-wall', 1, 10, 0),
+      reps('calf-raise', 1, 15, 0),
+    ],
+  },
+  {
+    name: 'Hiker Strength',
+    blurb: 'Twice a week. Strong legs and core for climbs, descents and uneven ground.',
+    entries: [
+      reps('step-up', 3, 10),
+      reps('reverse-lunge', 3, 10),
+      reps('single-leg-rdl', 3, 8),
+      reps('single-leg-calf-raise', 3, 12, 60),
+      reps('glute-bridge', 3, 15, 60),
+      reps('band-lateral-walk', 2, 12, 60),
+      hold('side-plank', 2, 30, 45),
+      hold('plank', 2, 45, 45),
+    ],
+  },
+  {
+    name: 'Hill Walk',
+    blurb: 'Once a week: hills, stairs or an incline treadmill.',
+    entries: [{ exerciseId: 'incline-walk', sets: 1, durationSec: 30 * 60, restSec: 0 }],
+  },
+  {
+    name: 'Post-Hike Recovery',
+    blurb: '10 minutes after a long day so your legs are ready for tomorrow.',
+    entries: [
+      hold('calf-stretch', 2, 45, 0),
+      hold('hamstring-stretch', 2, 45, 0),
+      hold('standing-quad-stretch', 2, 30, 0),
+      hold('hip-flexor-stretch', 2, 45, 0),
+      hold('seated-glute-stretch', 2, 45, 0),
+      reps('foot-roll', 2, 10, 0),
+      hold('legs-up-wall', 1, 300, 0),
+    ],
+  },
 ]

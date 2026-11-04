@@ -858,6 +858,49 @@ export const EXERCISES: ExerciseDef[] = [
     cues: ['Don’t arch your lower back to get higher', 'Slow and squeezed beats fast and high'],
   }),
 
+  cal('sit-to-stand', 'Sit-to-Stand', 'reps', ['quadriceps', 'glutes'], {
+    equipment: 'chair or box',
+    figure: 'sit-to-stand',
+    steps: [
+      'Sit near the front of a sturdy chair, feet flat and hip-width apart.',
+      'Lean forward a little and stand up, pushing through your whole feet.',
+      'Sit back down slowly, with control. Use your hands on your thighs if you need to.',
+    ],
+    cues: ['A higher seat is easier', 'Knees point the same way as your toes'],
+  }),
+  cal('step-down', 'Step-Down', 'reps', ['quadriceps', 'glutes'], {
+    equipment: 'low step',
+    perSide: true,
+    figure: 'step-down',
+    steps: [
+      'Stand on a low step (2–6″) next to a rail or wall.',
+      'Slowly bend your standing knee and lower the other heel toward the floor, taking about 3 seconds.',
+      'Lightly tap the floor, then straighten back up. Do all reps, then switch legs.',
+    ],
+    cues: ['Trains the control you need going downhill', 'Keep your knee in line with your toes'],
+  }),
+  cal('single-leg-balance', 'Single-Leg Balance', 'hold', ['calves', 'glutes', 'abdominals'], {
+    equipment: BODY,
+    perSide: true,
+    figure: 'single-leg-balance',
+    steps: [
+      'Stand next to a counter and lift one foot a few inches off the floor.',
+      'Stand tall and balance, touching the counter only if you need to.',
+      'Hold, then switch legs. Make it harder by turning your head slowly or standing on a cushion.',
+    ],
+    cues: ['Great for uneven trails and mounting a horse', 'Soft knee, not locked'],
+  }),
+  cal('tandem-balance', 'Heel-to-Toe Balance', 'hold', ['calves', 'abdominals'], {
+    equipment: BODY,
+    figure: 'tandem-balance',
+    steps: [
+      'Stand next to a counter with one foot directly in front of the other, heel touching toes.',
+      'Stand tall and hold, eyes on a spot ahead.',
+      'Switch which foot is in front halfway through.',
+    ],
+    cues: ['An easier step before single-leg balance'],
+  }),
+
   // ── Conditioning ───────────────────────────────────────────────────
   cal('jumping-jack', 'Jumping Jack', 'reps', ['calves', 'shoulders', 'glutes'], {
     equipment: BODY,
@@ -1856,6 +1899,26 @@ export const EXERCISES: ExerciseDef[] = [
   car('rower', 'Rowing Machine', 'cardio', ['middle back', 'quadriceps'], { equipment: 'rowing machine', fedb: 'Rowing_Stationary' }),
   car('elliptical', 'Elliptical', 'cardio', ['quadriceps'], { equipment: 'elliptical machine', fedb: 'Elliptical_Trainer' }),
   car('stair-climber', 'Stair Climber', 'cardio', ['quadriceps', 'glutes'], { equipment: 'stair machine', fedb: 'Stairmaster' }),
+  car('hike', 'Hike', 'cardio', ['quadriceps', 'glutes', 'calves'], {
+    equipment: 'trail shoes or boots',
+    fedb: 'Trail_Running_Walking',
+    cues: ['Short steps uphill, soft knees downhill', 'Log the distance so your trip plan can count it'],
+  }),
+  car('ruck-walk', 'Rucking (Walk with a Pack)', 'cardio', ['quadriceps', 'glutes', 'traps'], {
+    equipment: 'daypack',
+    fedb: 'Trail_Running_Walking',
+    steps: [
+      'Load a daypack with 5–15 lb: water bottles or books work well.',
+      'Tighten the hip belt so the weight sits on your hips, not your shoulders.',
+      'Walk tall at a steady pace. Add weight slowly over the weeks.',
+    ],
+    cues: ['Start light and build up', 'Great practice for trail days'],
+  }),
+  car('incline-walk', 'Incline Treadmill Walk', 'cardio', ['glutes', 'calves', 'hamstrings'], {
+    equipment: 'treadmill',
+    fedb: 'Walking_Treadmill',
+    cues: ['Set the incline to 6–12% and walk without holding the rails', 'A great stand-in for hills'],
+  }),
   car('jump-rope', 'Jump Rope', 'cardio', ['calves'], { equipment: 'jump rope', fedb: 'Rope_Jumping' }),
 
   car('battle-ropes', 'Battle Ropes', 'cardio', ['shoulders', 'abdominals', 'forearms'], {
@@ -1989,6 +2052,17 @@ export const EXERCISES: ExerciseDef[] = [
     cues: ['Start with no weight or very light weight', 'Go slowly, 3–5 seconds each way'],
   }),
 
+  mob('foot-roll', 'Foot Roll', 'reps', ['calves'], {
+    equipment: 'ball or water bottle',
+    perSide: true,
+    fedb: 'Foot-SMR',
+    steps: [
+      'Sit or stand with a ball or frozen water bottle under one foot.',
+      'Roll it slowly from heel to toes for about a minute, pausing on tender spots.',
+      'Switch feet.',
+    ],
+    cues: ['Lovely after a long hike', 'A frozen bottle doubles as an ice pack'],
+  }),
   mob('thoracic-rotation', 'Thoracic Rotation', 'reps', ['middle back', 'obliques'], {
     equipment: BODY,
     perSide: true,
@@ -2153,6 +2227,16 @@ export const EXERCISES: ExerciseDef[] = [
       'Bring your knees together and gently tuck your hips under until you feel the front of your thigh stretch.',
     ],
     cues: ['Don’t arch your lower back', 'Knee points straight down'],
+  }),
+  flex('legs-up-wall', 'Legs Up the Wall', 'hold', ['hamstrings', 'lower back'], {
+    equipment: 'wall',
+    figure: 'legs-up-wall',
+    steps: [
+      'Sit sideways next to a wall, then swing your legs up it as you lie back.',
+      'Shuffle your hips close to the wall and let your arms rest by your sides.',
+      'Relax and breathe slowly for 3–10 minutes.',
+    ],
+    cues: ['A restful end to a long day on your feet', 'Bend your knees if your hamstrings pull'],
   }),
 ]
 

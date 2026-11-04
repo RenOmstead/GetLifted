@@ -821,4 +821,37 @@ export const FIGURES: Record<string, FigureDef> = {
       { ...STAND, arm: [92, 92], leg2: [95, -100], reach2: [112, 112], toe2: -40 },
     ],
   },
+  'legs-up-wall': {
+    props: [{ t: 'wall', x: 150 }],
+    hold: true,
+    poses: [{ at: [143, 184], torso: 180, head: 180, arm: [10, 10], leg: [-90, -90], toe: 0 }],
+  },
+  'sit-to-stand': {
+    props: [{ t: 'box', x: 70, y: 150, w: 44, h: 42 }],
+    poses: [
+      { at: [124, 188], anchor: 'ankle', torso: -60, head: -65, leg: [-12, 112], arm: [20, 20], toe: 0 },
+      { ...STAND, at: [124, 188], arm: [20, 20] },
+    ],
+  },
+  'step-down': {
+    props: [{ t: 'box', x: 96, y: 168, w: 52, h: 24 }],
+    poses: [
+      { at: [124, 166], anchor: 'ankle', torso: -90, leg: [90, 90], leg2: [95, 95], arm: [92, 92], toe: 0, toe2: 0 },
+      { at: [124, 166], anchor: 'ankle', torso: -80, head: -85, leg: [40, 110], leg2: [80, 95], arm: [70, 40], toe: 0, toe2: 10 },
+    ],
+  },
+  'single-leg-balance': {
+    hold: true,
+    poses: [
+      { ...STAND, arm: [92, 92] },
+      { ...STAND, arm: [100, 100], leg2: [60, 130], toe2: 40 },
+    ],
+  },
+  'tandem-balance': {
+    hold: true,
+    poses: [
+      { ...STAND, arm: [96, 96] },
+      { ...STAND, arm: [100, 100], leg: [92, 92], leg2: [84, 92] },
+    ],
+  },
 }
