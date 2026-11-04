@@ -17,6 +17,7 @@ import { addDays, dateKey, daysBetween, formatSeconds, formatShortDate, parseDat
 import { useExercises, type ExerciseInfo } from '../lib/exercises'
 import { displayToKg, displayToM, distanceUnit, fmt, kgToDisplay, KG_PER_LB, mToDisplay, weightUnit } from '../lib/units'
 import { workoutWith } from '../lib/workoutActions'
+import { Celebrate, GoalCards, LogWalk, NextStones, Roadmap, StoneTrail, useGoals } from './YellowstoneGoals'
 import {
   applyDecision,
   DEFAULT_DAYS,
@@ -196,24 +197,34 @@ type Prog = ReturnType<typeof useProgram>
 
 function Program({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
   const { week, today } = prog
+  const goals = useGoals(p)
+  const [trail, setTrail] = useState(false)
+  const [walkOpen, setWalkOpen] = useState(false)
   if (!week) return null
   const lastMonday = addDays(prog.monday, -7)
   const needsReview = p.reviewedWeek == null || (p.reviewedWeek < prog.monday && p.startDate <= addDays(lastMonday, 6))
   return (
     <>
       {needsReview && <WeeklyReview prog={prog} p={p} />}
+      <Celebrate p={p} goals={goals} />
+      <GoalCards p={p} goals={goals} />
       <TodayWorkout prog={prog} />
+      <NextStones goals={goals} onAll={() => setTrail(true)} />
       <WeekCalendar prog={prog} p={p} />
+      <div className="grid-2">
+        <button className="btn" onClick={() => setWalkOpen(true)}>
+          <Icon name="plus" size={16} /> Log an extra walk
+        </button>
+        <button className="btn" onClick={() => setTrail(true)}>
+          <Icon name="star" size={16} /> All stepping stones
+        </button>
+      </div>
       <div className="card stack-sm">
-        <div className="row-between">
-          <div>
-            <div className="eyebrow">
-              Step {week.level} · {PHASES[week.phase].name}
-              {week.easy ? ' · lighter week' : ''}
-            </div>
-            <p className="small text-2">{week.easy ? 'A lighter week by design. Your body gets stronger while it recovers.' : PHASES[week.phase].text}</p>
-          </div>
+        <div className="eyebrow">
+          This week · step {week.level} · {PHASES[week.phase].name}
+          {week.easy ? ' · lighter week' : ''}
         </div>
+        <p className="small text-2">{week.easy ? 'A lighter week by design. Your body gets stronger while it recovers.' : PHASES[week.phase].text}</p>
         <div className="row wrap" style={{ gap: 6 }}>
           <span className="badge">🚶 {week.state.walkMin} min walks</span>
           <span className="badge">🌲 {week.state.longMin} min Saturday</span>
@@ -222,6 +233,9 @@ function Program({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
           {week.state.backToBack && <span className="badge">✦ back-to-back days</span>}
         </div>
       </div>
+      <Roadmap p={p} />
+      <StoneTrail open={trail} onClose={() => setTrail(false)} goals={goals} />
+      <LogWalk open={walkOpen} onClose={() => setWalkOpen(false)} units={prog.settings.units} />
       <Packing p={p} />
       <Progress prog={prog} p={p} />
       <TripDetails p={p} />
@@ -434,10 +448,13 @@ function CheckIn({ open, onClose, session, existing, units, short }: { open: boo
   const [soreness, setSoreness] = useState<number | null>(existing?.soreness ?? null)
   const [pain, setPain] = useState(existing?.pain ?? false)
   const [painNote, setPainNote] = useState(existing?.painNote ?? '')
-  const [walkMin, setWalkMin] = useState<number | null>(existing?.walkMin ?? null)
+  // Filled in from today's plan so a quick check-in still counts; change anything that was different.
+  const planned = session.walk ? (short ? Math.min(15, session.walk.minutes) : session.walk.minutes) : null
+  const [walkMin, setWalkMin] = useState<number | null>(existing?.walkMin ?? planned)
   const [dist, setDist] = useState<number | null>(existing?.distanceM != null ? mToDisplay(existing.distanceM, units) : null)
   const [elev, setElev] = useState<number | null>(existing?.elevationFt ?? null)
-  const [incline, setIncline] = useState<number | null>(existing?.inclinePct ?? null)
+  const [incline, setIncline] = useState<number | null>(existing?.inclinePct ?? (session.walk?.inclinePct || null))
+  const [pack, setPack] = useState<number | null>(existing?.packLb ?? (session.walk?.packLb || null))
   const [weight, setWeight] = useState<number | null>(null)
   const [saved, setSaved] = useState(false)
   const hasWalk = !!session.walk
@@ -456,6 +473,7 @@ function CheckIn({ open, onClose, session, existing, units, short }: { open: boo
       distanceM: dist != null ? displayToM(dist, units) : null,
       elevationFt: elev,
       inclinePct: incline,
+      packLb: pack,
     }
     if (existing?.id) await db.programLogs.update(existing.id, log)
     else await db.programLogs.add(log)
@@ -522,6 +540,10 @@ function CheckIn({ open, onClose, session, existing, units, short }: { open: boo
                   <label className="field">
                     <span>Elevation gain (ft)</span>
                     <NumInput value={elev} digits={0} onChange={setElev} />
+                  </label>
+                  <label className="field">
+                    <span>Pack weight (lb)</span>
+                    <NumInput value={pack} digits={1} onChange={setPack} />
                   </label>
                 </div>
               )}
@@ -644,7 +666,7 @@ function Progress({ prog, p }: { prog: Prog; p: YellowstoneSettings }) {
   const weights = useLiveQuery(() => db.weights.toArray(), []) ?? []
   const u = prog.settings.units
   const sessions = prog.logs.filter((l) => l.kind === 'session' && l.status !== 'skipped')
-  const longestWalk = Math.max(0, ...sessions.map((l) => l.walkMin ?? 0))
+  const longestWalk = Math.max(0, ...prog.logs.filter((l) => (l.kind === 'session' || l.kind === 'walk') && l.status !== 'skipped').map((l) => l.walkMin ?? 0))
   const checks = prog.logs.filter((l) => l.kind === 'check').sort((a, b) => a.date.localeCompare(b.date))
   const lastCheck = checks.at(-1)
   const checkDue = !lastCheck || daysBetween(lastCheck.date, prog.today) >= 28

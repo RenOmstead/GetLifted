@@ -54,6 +54,8 @@ export interface YellowstoneSettings {
   enduranceGoal: string
   riding: { wanted: boolean; limitLb: Fact<number>; marginLb: number }
   food: { mode: 'calories' | 'protein' | 'habits' | 'none'; deficit: number; proteinPerKg: number }
+  /** Stepping stones already celebrated. */
+  celebrated?: string[]
 }
 
 export interface WeightEntry {
@@ -247,13 +249,14 @@ export interface ChallengeJoin {
 export interface ProgramLog {
   id?: number
   date: string
-  kind: 'session' | 'review' | 'check'
+  kind: 'session' | 'review' | 'check' | 'walk'
   session?: 'strengthA' | 'walkHills' | 'strengthB' | 'easyOutdoor'
   status?: 'done' | 'short' | 'skipped'
   walkMin?: number | null
   distanceM?: number | null
   elevationFt?: number | null
   inclinePct?: number | null
+  packLb?: number | null
   /** 1–10 perceived effort. */
   effort?: number | null
   /** 0–10 soreness. */
